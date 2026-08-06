@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Tests
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Model artifacts
+models/*.pkl
+models/*.onnx
+models/*.h5
+models/*.pt
+
+# Env
+.env

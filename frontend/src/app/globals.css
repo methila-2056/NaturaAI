@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest-50: #f0f9f2;
+  --color-forest-100: #dcf0e1;
+  --color-forest-200: #bce0c7;
+  --color-forest-300: #8fc9a4;
+  --color-forest-400: #5cab7a;
+  --color-forest-500: #388e58;
+  --color-forest-600: #287245;
+  --color-forest-700: #215b3a;
+  --color-forest-800: #1c4930;
+  --color-forest-900: #183c29;
+  --color-forest-950: #0d2116;
+
+  --color-leaf-400: #7ad7a0;
+  --color-leaf-500: #4cbf82;
+  --color-leaf-600: #37a36c;
+
+  --color-cream-50: #fbf8f1;
+  --color-cream-100: #f5efe0;
+  --color-cream-200: #e9dcc2;
+
+  --color-sun-400: #f2b64d;
+  --color-sun-500: #e09f2e;
+
+  --color-terra-500: #b0613f;
+  --color-terra-600: #964f31;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --background: #0d2116;
+  --foreground: #f5efe0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-forest-950);
+  color: var(--color-cream-50);
+  font-family: var(--font-sans);
+}
+
+section {
+  scroll-margin-top: 5rem;
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, #7ad7a0, #f2b64d);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-14px); }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.animate-sway {
+  animation: sway 4s ease-in-out infinite;
+  transform-origin: bottom center;
+}

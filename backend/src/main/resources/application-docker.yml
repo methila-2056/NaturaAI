@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:naturaai}
+    username: ${DB_USER:naturaai}
+    password: ${DB_PASSWORD:naturaai}
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+  rabbitmq:
+    host: ${RABBIT_HOST:rabbitmq}
+
+naturaai:
+  ml-engine-url: ${ML_ENGINE_URL:http://ml-engine:8000}
+
+logging:
+  level:
+    com.naturaai: DEBUG

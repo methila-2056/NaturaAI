@@ -1,0 +1,16 @@
+name,symptoms,recommended_herbs,avoid_herbs
+Common Cold,"Runny nose|Sore throat|Cough|Fatigue","Tulsi|Ginger|Honey|Lemon",
+Diabetes,"High blood sugar|Fatigue|Thirst","Fenugreek|Cinnamon|Neem|Moringa","Honey|Sugar-containing syrups"
+Hypertension,"High blood pressure|Headache|Dizziness","Hibiscus|Garlic","Licorice|High-sodium preparations"
+Asthma,"Wheezing|Shortness of breath|Cough","Tulsi|Ginger","Heavy perfumed external products"
+Thyroid,"Fatigue|Weight changes|Hair thinning","Brahmi|Ashwagandha","Moringa leaf|Excess raw cabbage family"
+PCOS,"Irregular periods|Acne|Hair thinning","Fenugreek|Amla|Neem","High-glycemic sweeteners|Honey in excess"
+Skin Allergy,"Redness|Itching|Hives","Aloe Vera|Neem|Calendula","Lemon|Essential oils undiluted"
+Eczema,"Dry itchy patches|Flaking","Aloe Vera|Neem|Turmeric","Harsh sulfates|Undiluted essential oils"
+Psoriasis,"Scaly patches|Silvery plaques","Turmeric|Aloe Vera|Neem","Alcohol-based toners"
+Acne,"Pimples|Inflammation|Oily skin","Neem|Aloe Vera|Tea Tree|Turmeric","Heavy oils that clog pores"
+Hair Loss,"Thinning hair|Scalp exposure","Hibiscus|Amla|Fenugreek|Coconut Oil|Brahmi","Sulfate-heavy shampoos"
+Fever,"High temperature|Body ache|Sweating","Tulsi|Ginger|Honey","Spicy heavy foods"
+Stress,"Irritability|Tiredness|Poor focus","Ashwagandha|Brahmi|Tulsi","Stimulant-heavy teas after noon"
+Anxiety,"Restlessness|Racing thoughts|Tension","Brahmi|Ashwagandha|Chamomile","Caffeine"
+Insomnia,"Difficulty sleeping|Waking often|Fatigue","Ashwagandha|Chamomile|Valerian","Green Tea|Caffeine|Ashwagandha in excess"

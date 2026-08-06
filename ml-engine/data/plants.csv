@@ -1,0 +1,17 @@
+name,scientific_name,family,region,benefits,side_effects,toxicity,usage
+Tulsi,Ocimum tenuiflorum,Lamiaceae,South Asia,"Improves immunity|Reduces stress|Eases cold and cough","May lower blood sugar|Avoid large doses in pregnancy",low,internal
+Neem,Azadirachta indica,Meliaceae,Indian subcontinent,"Improves skin health|Fights acne|Supports oral hygiene","Strong doses may cause nausea|Not for internal use in pregnancy",low,external
+Turmeric,Curcuma longa,Zingiberaceae,South Asia,"Reduces inflammation|Supports joints|Aids digestion","May interact with blood thinners|High doses upset stomach",low,internal
+Ginger,Zingiber officinale,Zingiberaceae,South Asia,"Relieves nausea|Improves digestion|Soothes throat","Caution with anticoagulants|Heartburn at high doses",low,internal
+Aloe Vera,Aloe barbadensis,Asphodelaceae,North Africa,"Hydrates skin|Soothes burns|Improves hair condition","Internal latex may cause cramps|Avoid in pregnancy",low,external
+Ashwagandha,Withania somnifera,Solanaceae,India,"Reduces stress|Improves sleep|Supports energy","Caution with thyroid medication|May cause drowsiness",low,internal
+Brahmi,Bacopa monnieri,Plantaginaceae,Wetlands of India,"Improves memory|Supports focus|Calms the mind","May cause mild digestive upset",low,internal
+Hibiscus,Hibiscus sabdariffa,Malvaceae,"West Africa, Asia","Promotes hair growth|Supports heart health|Rich in antioxidants","May lower blood pressure|Caution in pregnancy",low,external
+Honey,Apis mellifera product,None,Global,"Soothes sore throat|Natural sweetener|Antimicrobial","Avoid if diabetic|Not for infants under 1 year",low,internal
+Moringa,Moringa oleifera,Moringaceae,South Asia,"Boosts nutrition|Supports energy|Antioxidant rich","May interact with thyroid medication|High doses laxative",low,internal
+Rose,Rosa damascena,Rosaceae,Middle East,"Calms skin|Aromatic|Mild astringent","Rare contact dermatitis",low,external
+Mint,Mentha piperita,Lamiaceae,"Europe, Asia","Aids digestion|Cools the body|Freshens breath","Heartburn in sensitive people|Avoid with GERD",low,internal
+Amla,Phyllanthus emblica,Phyllanthaceae,India,"Rich in vitamin C|Improves hair|Supports immunity","May irritate empty stomach",low,internal
+Fenugreek,Trigonella foenum-graecum,Fabaceae,Mediterranean,"Lowers blood sugar|Promotes hair growth|Supports lactation","May lower blood sugar too much|Maple-scented body odour",low,internal
+Green Tea,Camellia sinensis,Theaceae,East Asia,"Antioxidant rich|Boosts metabolism|Supports focus","Caffeine sensitivity|Iron absorption reduced",low,internal
+Lemon,Citrus limon,Rutaceae,Asia,"Vitamin C boost|Aids digestion|Brightens skin","Tooth enamel erosion|Photosensitivity on skin",low,internal

@@ -1,0 +1,71 @@
+spring:
+  application:
+    name: naturaai-backend
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:naturaai}
+    username: ${DB_USER:naturaai}
+    password: ${DB_PASSWORD:naturaai}
+    hikari:
+      maximum-pool-size: 10
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USER:naturaai}
+    password: ${RABBIT_PASS:naturaai}
+  mail:
+    host: ${SMTP_HOST:}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:replace-with-google-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:replace-with-google-client-secret}
+            scope:
+              - email
+              - profile
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+
+naturaai:
+  ml-engine-url: ${ML_ENGINE_URL:http://localhost:8000}
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  mail:
+    from: ${MAIL_FROM:no-reply@naturaai.com}
+  jwt:
+    secret: ${JWT_SECRET:change-me-to-a-long-random-secret-of-at-least-32-bytes}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
