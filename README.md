@@ -124,7 +124,7 @@ The project is deployed as three independent services, each on a free tier.
 
 | Variable                 | Where                 | Purpose                                            |
 |--------------------------|-----------------------|----------------------------------------------------|
-| `DATABASE_URL`           | Backend (host)        | JDBC URL of the cloud Postgres, e.g. `jdbc:postgresql://<user>:<pass>@<host>:5432/<db>?sslmode=require` |
+| `DATABASE_URL`           | Backend (host)        | JDBC URL of the cloud Postgres. Must use the query-param form (the driver rejects `user:pass@host` URLs): `jdbc:postgresql://<host>/<db>?user=<user>&password=<pass>&sslmode=require` |
 | `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/`DB_PASSWORD` | Backend | Split form used when `DATABASE_URL` is empty (local dev) |
 | `JWT_SECRET`             | Backend (host)        | At least 32 random bytes — generate with `openssl rand -base64 48` |
 | `ALLOWED_ORIGINS`        | Backend (host)        | Comma-separated frontend origins allowed by CORS |
@@ -146,7 +146,8 @@ git-ignored; `.env.example` contains placeholders only.
 1. Sign up at <https://neon.tech> (free, no card).
 2. Create a project → copy the connection string from the dashboard.
 3. Convert it to the JDBC form the backend expects:
-   `postgresql://...` → `jdbc:postgresql://...` and add `?sslmode=require` if missing.
+   `postgresql://<user>:<pass>@<host>/<db>` → `jdbc:postgresql://<host>/<db>?user=<user>&password=<pass>&sslmode=require`
+   (the `user:pass@host` form is rejected by the PostgreSQL JDBC driver).
 4. Tables are created automatically on first backend boot (`ddl-auto: update`) and seed data
    (herbs, disease guidance) is loaded by `DataSeeder`. Optionally run
    `docs/database-schema.sql` in the Neon SQL editor first.
