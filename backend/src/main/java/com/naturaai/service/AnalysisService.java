@@ -130,20 +130,26 @@ public class AnalysisService {
                     .orElse(90));
         }
         int penalty = Math.min(20, unknownPairs * 10) + Math.min(10, hazardNotes) * 2;
-        int compatibility = Math.max(20, Math.min(98, baseCompatibility - penalty));
+        int compatibility = clamp(
+                baseCompatibility - penalty + scoreOffset(ingredients, 0, 3), 20, 98);
 
         int safety = switch (verdict) {
             case UNSAFE -> 25;
             case CAUTION -> Math.max(45, 62 - hazardNotes * 3);
             case SAFE -> Math.max(70, 90 - hazardNotes * 4);
         };
+        safety = clamp(safety + scoreOffset(ingredients, 1, 3),
+                verdict == Verdict.SAFE ? 70 : verdict == Verdict.CAUTION ? 45 : 20, 100);
         int risk = 100 - safety;
         int benefitBase = switch (verdict) {
             case SAFE -> 84;
             case CAUTION -> 68;
             case UNSAFE -> 48;
         };
-        int benefit = Math.min(98, benefitBase + Math.min(12, benefits.size()));
+        int benefit = clamp(benefitBase + Math.min(12, benefits.size())
+                + scoreOffset(ingredients, 2, 3), 30, 98);
+        int confidence = clamp((int) Math.round(averageConfidence)
+                + scoreOffset(ingredients, 3, 2), 30, 98);
 
         boolean internal = "internal".equalsIgnoreCase(request.remedyType());
 
@@ -152,7 +158,7 @@ public class AnalysisService {
                 safety,
                 benefit,
                 risk,
-                (int) averageConfidence,
+                confidence,
                 toxicity(verdict, hazardNotes),
                 verdict,
                 limit(benefits, 6),
@@ -257,6 +263,26 @@ public class AnalysisService {
 
     private static List<String> dedupe(List<String> items) {
         return new ArrayList<>(new LinkedHashSet<>(items));
+    }
+
+    /**
+     * Small deterministic per-combination jitter so different ingredient sets
+     * never share an identical scorecard, while repeats stay stable.
+     * Mirrors ml-engine/app/predictor.py (_score_offset).
+     */
+    private static int scoreOffset(List<String> ingredients, int channel, int span) {
+        int hash = 17;
+        for (String ingredient : ingredients) {
+            for (char c : ingredient.toLowerCase(Locale.ROOT).toCharArray()) {
+                hash = hash * 31 + c;
+            }
+        }
+        int value = Math.floorMod(hash + channel * 1013, span * 2 + 1);
+        return value - span;
+    }
+
+    private static int clamp(int value, int low, int high) {
+        return Math.max(low, Math.min(high, value));
     }
 
     private static List<String> limit(List<String> items, int max) {

@@ -22,6 +22,8 @@ public class JwtService {
 
     private static final long EMAIL_VERIFICATION_EXPIRATION_MS = 3_600_000L;
 
+    private static final long PASSWORD_RESET_EXPIRATION_MS = 1_800_000L;
+
     private final SecretKey key;
     private final long expirationMs;
 
@@ -63,6 +65,31 @@ public class JwtService {
                     && !claims.getExpiration().before(new Date());
         } catch (Exception ex) {
             logger.warn("Verification token rejected: {}", ex.toString());
+            return false;
+        }
+    }
+
+    public String generatePasswordResetToken(String email) {
+        return Jwts.builder()
+                .subject(email)
+                .claim("purpose", "password_reset")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + PASSWORD_RESET_EXPIRATION_MS))
+                .signWith(key)
+                .compact();
+    }
+
+    public boolean isPasswordResetToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return "password_reset".equals(claims.get("purpose", String.class))
+                    && !claims.getExpiration().before(new Date());
+        } catch (Exception ex) {
+            logger.warn("Password reset token rejected: {}", ex.toString());
             return false;
         }
     }

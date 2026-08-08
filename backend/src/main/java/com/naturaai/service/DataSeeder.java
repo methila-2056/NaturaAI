@@ -8,13 +8,24 @@ import com.naturaai.model.Verdict;
 import com.naturaai.repository.DiseaseRepository;
 import com.naturaai.repository.HerbCombinationRepository;
 import com.naturaai.repository.HerbRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
+    private static final String HERB_CATALOG = "herbs_catalog.csv";
 
     private final HerbRepository herbRepository;
     private final HerbCombinationRepository combinationRepository;
@@ -33,12 +44,82 @@ public class DataSeeder implements CommandLineRunner {
         if (herbRepository.count() == 0) {
             seedHerbs();
         }
+        seedCatalogHerbs();
         if (combinationRepository.count() == 0) {
             seedCombinations();
         }
         if (diseaseRepository.count() == 0) {
             seedDiseases();
         }
+    }
+
+    private void seedCatalogHerbs() {
+        try (InputStream in = getClass().getResourceAsStream("/" + HERB_CATALOG)) {
+            if (in == null) {
+                log.warn("{} not found on classpath; skipping catalog seeding", HERB_CATALOG);
+                return;
+            }
+            List<Herb> toSave = new ArrayList<>();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+                reader.readLine(); // header
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.isBlank()) {
+                        continue;
+                    }
+                    String[] c = line.split(",", -1);
+                    if (c.length < 7) {
+                        continue;
+                    }
+                    String name = c[0].trim();
+                    if (name.isEmpty() || herbRepository.findByNameIgnoreCase(name).isPresent()) {
+                        continue;
+                    }
+                    List<String> sideEffects = splitPipe(c[5]);
+                    toSave.add(Herb.builder()
+                            .name(name)
+                            .scientificName(c[1].trim())
+                            .family(c[2].trim())
+                            .region(c[3].trim())
+                            .activeCompounds("")
+                            .medicinalProperties(List.of("Traditional Ayurvedic remedy"))
+                            .benefits(splitPipe(c[4]))
+                            .sideEffects(sideEffects)
+                            .contraindications(sideEffects)
+                            .preparationMethods(List.of("Infusion", "Decoction", "Oil infusion"))
+                            .toxicityLevel(parseToxicity(c[6]))
+                            .build());
+                }
+            }
+            if (!toSave.isEmpty()) {
+                herbRepository.saveAll(toSave);
+                log.info("Seeded {} herbs from catalog", toSave.size());
+            }
+        } catch (IOException e) {
+            log.error("Failed to seed herb catalog", e);
+        }
+    }
+
+    private static ToxicityLevel parseToxicity(String value) {
+        try {
+            return ToxicityLevel.fromValue(value.trim());
+        } catch (IllegalArgumentException e) {
+            return ToxicityLevel.LOW;
+        }
+    }
+
+    private static List<String> splitPipe(String value) {
+        List<String> out = new ArrayList<>();
+        if (value == null) {
+            return out;
+        }
+        for (String part : value.split("\\|")) {
+            String p = part.trim();
+            if (!p.isEmpty()) {
+                out.add(p);
+            }
+        }
+        return out;
     }
 
     private void seedHerbs() {

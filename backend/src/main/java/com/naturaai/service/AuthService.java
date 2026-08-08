@@ -100,8 +100,26 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public void forgotPassword(String email) {
-        userRepository.findByEmail(email.toLowerCase()).ifPresent(user ->
-                mailService.sendPasswordResetNotice(user.getEmail(), user.getFullName()));
+        userRepository.findByEmail(email.toLowerCase()).ifPresent(user -> {
+            String token = jwtService.generatePasswordResetToken(user.getEmail());
+            String link = frontendUrl + "/reset-password?token=" + token;
+            mailService.sendPasswordResetEmail(user.getEmail(), user.getFullName(), link);
+        });
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        if (!jwtService.isPasswordResetToken(token)) {
+            throw new IllegalArgumentException("Invalid or expired password reset link.");
+        }
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters");
+        }
+        String email = jwtService.extractUsername(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     public UserDto currentUser(String email) {

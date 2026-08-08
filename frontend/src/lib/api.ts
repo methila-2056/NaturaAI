@@ -19,7 +19,11 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (!res.ok) {
     const body = await res.json().catch(() => null);
-    throw new Error(body?.message ?? `Request failed with status ${res.status}`);
+    let message = body?.message ?? body?.detail ?? `Request failed with status ${res.status}`;
+    if (Array.isArray(message)) {
+      message = message[0]?.msg ?? message.join(", ");
+    }
+    throw new Error(String(message));
   }
   return res.json() as Promise<T>;
 }
@@ -91,6 +95,11 @@ export const api = {
     request<{ message: string }>("/api/v1/auth/forgot-password", {
       method: "POST",
       body: JSON.stringify({ email }),
+    }),
+  resetPassword: (token: string, password: string) =>
+    request<{ message: string }>("/api/v1/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ token, password }),
     }),
   verifyEmail: (token: string) =>
     request<{ message: string }>("/api/v1/auth/verify-email", {

@@ -42,6 +42,7 @@ def load_plants() -> list[dict[str, Any]]:
             "side_effects": _split(row["side_effects"]),
             "toxicity": row["toxicity"],
             "usage": row["usage"],
+            "english_name": row.get("english_name", ""),
         }
         for row in _read_csv(PLANTS_FILE)
     ]

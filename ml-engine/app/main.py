@@ -16,6 +16,7 @@ import io
 
 import numpy as np
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from . import knowledge
@@ -28,6 +29,19 @@ app = FastAPI(
     title="NaturaAI ML Engine",
     description="Herbal compatibility prediction, personalized recommendations, and grounded Q&A.",
     version="0.1.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 predictor = CompatibilityPredictor()
@@ -106,7 +120,11 @@ def assistant(request: AssistantRequest) -> dict:
 @app.post("/suggest")
 def suggest(request: SuggestRequest) -> dict:
     if knowledge.find_plant(request.ingredient) is None:
-        raise HTTPException(status_code=422, detail=f"Unknown ingredient: {request.ingredient}")
+        return {
+            "ingredient": request.ingredient,
+            "suggestions": [],
+            "note": f"'{request.ingredient}' is not in the knowledge base yet, so no complementary suggestions are available for it.",
+        }
     suggestions = predictor.suggest_complements(
         ingredient=request.ingredient,
         limit=request.limit,

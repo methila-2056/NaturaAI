@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Leaf, Loader2, RotateCcw, Search, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Leaf, Loader2, Plus, RotateCcw, Search, Sparkles, X } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,8 +12,7 @@ import { useUserStore } from "@/store/useUserStore";
 
 const HERBS = [
   "Neem", "Tulsi", "Hibiscus", "Aloe Vera", "Rose", "Mint", "Brahmi", "Ashwagandha",
-  "Turmeric", "Ginger", "Lemon", "Moringa", "Green Tea", "Amla", "Fenugreek",
-  "Honey", "Coconut Oil", "Rose Water", "Sandalwood", "Cinnamon",
+  "Turmeric", "Ginger", "Lemon", "Moringa", "Green Tea", "Amla", "Fenugreek", "Honey",
 ];
 
 const DISEASES = [
@@ -53,7 +53,10 @@ export default function RemedyForm() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<SuggestResult[]>([]);
   const [suggesting, setSuggesting] = useState(false);
+  const [suggestNote, setSuggestionNote] = useState<string | null>(null);
   const [allHerbs, setAllHerbs] = useState<string[]>(HERBS);
+  const [analysisId, setAnalysisId] = useState<string | null>(null);
+  const [analyzedAt, setAnalyzedAt] = useState<string | null>(null);
 
   useEffect(() => {
     api
@@ -90,6 +93,12 @@ export default function RemedyForm() {
     );
   }
 
+  function addIngredient(name: string) {
+    const clean = name.trim();
+    if (!clean) return;
+    setIngredients((list) => (list.includes(clean) ? list : [...list, clean]));
+  }
+
   async function runAnalysis() {
     setLoading(true);
     setError(null);
@@ -107,6 +116,13 @@ export default function RemedyForm() {
       };
       const res = await api.analyze(payload);
       setResult(res);
+      setAnalysisId(
+        `NA-${Date.now().toString(36).toUpperCase()}${Math.random()
+          .toString(36)
+          .slice(2, 6)
+          .toUpperCase()}`,
+      );
+      setAnalyzedAt(new Date().toLocaleString());
       setStep("result");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Analysis failed");
@@ -115,24 +131,31 @@ export default function RemedyForm() {
     }
   }
 
-  function reset() {
-    setStep("health");
+  function reset(target: Step = "health") {
+    setStep(target);
     setResult(null);
     setIngredients([]);
     setError(null);
     setAiSuggestions([]);
+    setSuggestionNote(null);
     setSearch("");
+    setAnalysisId(null);
+    setAnalyzedAt(null);
   }
 
   async function loadAiSuggestions() {
     if (ingredients.length === 0) return;
     setSuggesting(true);
     setError(null);
+    setSuggestionNote(null);
     try {
       const results = await Promise.all(ingredients.map((ing) => api.suggest(ing, ingredients)));
       const seen = new Set<string>();
       const merged: SuggestResult[] = [];
+      const notes: string[] = [];
       for (const res of results) {
+        const note = (res as { note?: string }).note;
+        if (note) notes.push(note);
         for (const s of res.suggestions) {
           if (ingredients.includes(s.ingredient) || seen.has(s.ingredient)) continue;
           seen.add(s.ingredient);
@@ -145,6 +168,7 @@ export default function RemedyForm() {
           rank[a.verdict] - rank[b.verdict] || b.confidence - a.confidence,
       );
       setAiSuggestions(merged.slice(0, 6));
+      setSuggestionNote(notes.join(" ") || null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "AI suggestions failed");
     } finally {
@@ -154,6 +178,13 @@ export default function RemedyForm() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12">
+      <Link
+        href="/"
+        className="mb-6 inline-flex items-center gap-2 text-sm text-cream-200/70 transition-colors hover:text-leaf-400"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to home
+      </Link>
       <div className="mb-10 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Remedy Analyzer</h1>
@@ -161,7 +192,7 @@ export default function RemedyForm() {
             Answer a few questions and let the AI engine predict compatibility and safety.
           </p>
         </div>
-        <Button variant="ghost" onClick={reset}>
+        <Button variant="ghost" onClick={() => reset("health")}>
           <RotateCcw className="mr-2 h-4 w-4" />
           Start over
         </Button>
@@ -282,7 +313,7 @@ export default function RemedyForm() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex flex-wrap gap-2">
-                  {HERBS.map((h) => (
+                  {allHerbs.map((h) => (
                     <button
                       key={h}
                       onClick={() =>
@@ -313,10 +344,20 @@ export default function RemedyForm() {
                     }}
                     onFocus={() => setShowDropdown(true)}
                     onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (search.trim()) {
+                          addIngredient(search);
+                          setSearch("");
+                          setShowDropdown(false);
+                        }
+                      }
+                    }}
                     placeholder="Search for an ingredient to add…"
                     className="w-full rounded-xl border border-forest-600 bg-forest-950 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-leaf-400"
                   />
-                  {showDropdown && search.trim() && searchMatches.length > 0 && (
+                  {showDropdown && search.trim() && (
                     <div className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-xl border border-forest-600 bg-forest-900 p-1 shadow-lg">
                       {searchMatches.map((h) => (
                         <button
@@ -333,6 +374,20 @@ export default function RemedyForm() {
                           {h}
                         </button>
                       ))}
+                      {searchMatches.length === 0 && (
+                        <button
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            addIngredient(search);
+                            setSearch("");
+                            setShowDropdown(false);
+                          }}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-cream-200/80 hover:bg-forest-800"
+                        >
+                          <Plus className="h-3.5 w-3.5 text-leaf-400" />
+                          Add &ldquo;{search}&rdquo; as a custom ingredient
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -363,10 +418,14 @@ export default function RemedyForm() {
                       ingredients.
                     </p>
                   ) : aiSuggestions.length === 0 && !suggesting ? (
-                    <p className="mt-3 text-xs text-cream-200/50">
-                      No suggestions yet. Click &quot;Suggest with AI&quot; to let the trained model
-                      rank the safest complementary ingredients.
-                    </p>
+                    suggestNote ? (
+                      <p className="mt-3 text-xs text-sun-400">{suggestNote}</p>
+                    ) : (
+                      <p className="mt-3 text-xs text-cream-200/50">
+                        No suggestions yet. Click &quot;Suggest with AI&quot; to let the trained model
+                        rank the safest complementary ingredients.
+                      </p>
+                    )
                   ) : (
                     <div className="mt-3 space-y-2">
                       {aiSuggestions.map((s) => (
@@ -419,10 +478,46 @@ export default function RemedyForm() {
                 </div>
 
                 <div>
-                  <p className="mb-2 text-sm font-medium text-cream-100">
-                    Selected ({ingredients.length}):{" "}
-                    {ingredients.length > 0 ? ingredients.join(" + ") : "none yet"}
-                  </p>
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-sm font-medium text-cream-100">
+                      Selected ({ingredients.length})
+                    </p>
+                    {ingredients.length > 0 && (
+                      <button
+                        onClick={() => {
+                          setIngredients([]);
+                          setAiSuggestions([]);
+                        }}
+                        className="flex items-center gap-1 text-xs text-cream-200/60 transition-colors hover:text-terra-400"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                        Clear all
+                      </button>
+                    )}
+                  </div>
+                  {ingredients.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {ingredients.map((ing) => (
+                        <span
+                          key={ing}
+                          className="flex items-center gap-2 rounded-full border border-leaf-400/40 bg-leaf-500/10 px-3 py-1.5 text-sm text-cream-100"
+                        >
+                          {ing}
+                          <button
+                            onClick={() =>
+                              setIngredients((list) => list.filter((x) => x !== ing))
+                            }
+                            aria-label={`Remove ${ing}`}
+                            className="text-cream-200/60 transition-colors hover:text-terra-400"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-cream-200/60">none yet</p>
+                  )}
                 </div>
 
                 {error && <p className="text-sm text-terra-500">{error}</p>}
@@ -465,7 +560,15 @@ export default function RemedyForm() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>AI Prediction</CardTitle>
+                  <div>
+                    <CardTitle>AI Prediction</CardTitle>
+                    {analysisId && (
+                      <p className="mt-1 text-xs text-cream-200/50">
+                        Reference {analysisId}
+                        {analyzedAt ? ` · ${analyzedAt}` : ""}
+                      </p>
+                    )}
+                  </div>
                   <Badge
                     variant={
                       result.verdict === "safe"
@@ -575,6 +678,22 @@ export default function RemedyForm() {
               Disclaimer: NaturaAI is for educational purposes only and does not replace
               professional medical advice. Consult a qualified healthcare professional before
               consuming or applying any herbal remedy.
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setResult(null);
+                  reset("type");
+                }}
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Analyze another combination
+              </Button>
+              <Button variant="ghost" onClick={() => reset("health")}>
+                Start over
+              </Button>
             </div>
           </motion.div>
         )}

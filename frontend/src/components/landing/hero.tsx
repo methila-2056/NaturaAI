@@ -71,7 +71,7 @@ export function Hero() {
                 <span className="text-2xl">🌿</span>
                 <div>
                   <p className="text-sm font-medium">{herb}</p>
-                  <p className="text-xs text-leaf-400">97% compatible</p>
+                  <p className="text-xs text-leaf-400">Known &amp; documented</p>
                 </div>
               </motion.div>
             ))}

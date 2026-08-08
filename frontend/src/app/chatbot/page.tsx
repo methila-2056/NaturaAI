@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { Bot, Send, User } from "lucide-react";
+import { ArrowLeft, Bot, Send, User } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,13 @@ export default function ChatbotPage() {
     <main className="min-h-screen">
       <Navbar />
       <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-3xl flex-col px-6 py-10">
+        <Link
+          href="/"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-cream-200/70 transition-colors hover:text-leaf-400"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to home
+        </Link>
         <div className="mb-6 flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-forest-800 text-leaf-400">
             <Bot className="h-5 w-5" />

@@ -16,7 +16,7 @@ const capabilities = [
     icon: ShieldCheck,
     title: "Compatibility Predictor",
     description:
-      "Machine learning over 500,000+ herb-pair records to flag safe, caution, and unsafe combinations.",
+      "Machine learning over curated herb-pair interaction data to flag safe, caution, and unsafe combinations.",
   },
   {
     icon: UserRound,

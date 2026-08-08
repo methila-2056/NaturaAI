@@ -78,8 +78,53 @@ def test_model_artifact_loads() -> None:
 
 def test_ml_path_used_for_unknown_in_vocab_pair() -> None:
     predictor = CompatibilityPredictor(use_model=True)
-    pred = predictor._model_prediction("Moringa", "Rose")
-    assert pred is not None, "ML path should predict for in-vocab, uncurated pairs"
+    pred = predictor._model_prediction("Tulsi", "Neem")
+    assert pred is not None, "ML path should predict for core in-vocab pairs without a curated record"
     verdict, confidence = pred
     assert verdict in {"safe", "caution", "unsafe"}
     assert 0 <= confidence <= 100
+
+
+def test_ml_path_skipped_for_non_core_herbs() -> None:
+    predictor = CompatibilityPredictor(use_model=True)
+    assert predictor._model_prediction("Arjuna", "Ashoka") is None, (
+        "ML must not judge herbs that have no curated combination data"
+    )
+    result = predictor.predict(["Arjuna", "Ashoka"], "internal")
+    assert result["verdict"] == "caution"
+    assert result["risks"]
+
+
+def test_large_catalog_predicts_safe_curated_pair() -> None:
+    result = CompatibilityPredictor().predict(["Ginger", "Tulsi"], "internal")
+    assert result["verdict"] == "safe"
+    assert result["compatibilityScore"] >= 80
+
+
+def test_distinct_combinations_yield_distinct_scores() -> None:
+    predictor = CompatibilityPredictor()
+    a = predictor.predict(["Tulsi", "Ginger"], "internal")
+    b = predictor.predict(["Lemon", "Honey"], "internal")
+    c = predictor.predict(["Mint", "Green Tea"], "internal")
+    scorecards = [
+        (r["compatibilityScore"], r["safetyScore"], r["benefitScore"], r["scientificConfidence"])
+        for r in (a, b, c)
+    ]
+    assert len(set(scorecards)) == len(scorecards), "different combos must not share identical scores"
+
+
+def test_same_combination_is_stable() -> None:
+    predictor = CompatibilityPredictor()
+    first = predictor.predict(["Tulsi", "Ginger"], "internal")
+    second = predictor.predict(["Ginger", "Tulsi"], "internal")
+    fields = [
+        "compatibilityScore",
+        "safetyScore",
+        "benefitScore",
+        "riskScore",
+        "scientificConfidence",
+        "verdict",
+        "toxicityLevel",
+    ]
+    assert [first[f] for f in fields] == [second[f] for f in fields]
+    assert 0 <= first["safetyScore"] <= 100

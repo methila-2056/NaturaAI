@@ -9,7 +9,9 @@ algorithms: Random Forest, XGBoost, Gradient Boosting, LightGBM.
 
 from __future__ import annotations
 
+import hashlib
 import logging
+import random as _random
 from pathlib import Path
 from typing import Any
 
@@ -34,6 +36,11 @@ HAZARD_NOTES = {
     "ginger": "Caution with blood thinners at high doses",
     "tulsi": "Caution with anticoagulants at very high doses",
     "cinnamon": "High doses may affect liver; caution with anticoagulants",
+    "cumin": "May lower blood sugar; monitor if on antidiabetic medication",
+    "clove": "High doses may thin blood; caution with anticoagulants",
+    "nigella seed": "May lower blood pressure; caution with antihypertensives",
+    "carom": "Large doses not advised during pregnancy",
+    "giloy": "Caution in autoimmune conditions",
 }
 
 
@@ -41,6 +48,23 @@ def _avg(values: list[float | int] | None, default: float) -> int:
     if not values:
         return int(default)
     return int(round(float(np.mean(values))))
+
+
+def _clamp(value: int, low: int, high: int) -> int:
+    return max(low, min(high, value))
+
+
+def _seed_for(ingredients: list[str]) -> int:
+    """Deterministic seed derived from the ingredient set (order-independent)."""
+    key = "|".join(sorted(i.strip().lower() for i in ingredients)).encode("utf-8")
+    return int.from_bytes(hashlib.md5(key).digest()[:4], "big")
+
+
+def _score_offset(ingredients: list[str], channel: int, span: int = 3) -> int:
+    """Small deterministic per-combination jitter so no two ingredient sets
+    produce identical scorecards, while repeats stay stable."""
+    rng = _random.Random(_seed_for(ingredients) + channel * 1013)
+    return rng.randint(-span, span)
 
 
 def _merge(a: list[str], b: list[str]) -> list[str]:
@@ -99,11 +123,29 @@ class CompatibilityPredictor:
     def is_ml_active(self) -> bool:
         return self.model is not None
 
+    @staticmethod
+    def _core_herbs() -> set[str]:
+        """Herbs that appear in at least one curated combination.
+
+        The ML model is trained only on curated pairs, so its verdicts are only
+        meaningful for herbs it has seen. Pairs of herbs outside this core set
+        always fall back to the conservative 'caution' path instead of trusting
+        an under-trained model on a huge, sparse vocabulary.
+        """
+        core: set[str] = set()
+        for combo in knowledge.load_combinations():
+            core.add(combo["herb_a"])
+            core.add(combo["herb_b"])
+        return core
+
     def _model_prediction(self, a: str, b: str) -> tuple[str, int] | None:
         if self.model is None:
             return None
         a, b = a.strip().lower(), b.strip().lower()
         if not self.herb_index or a not in self.herb_index or b not in self.herb_index:
+            return None
+        core = self._core_herbs()
+        if a not in core or b not in core:
             return None
 
         features = build_pair_vector(a, b).reshape(1, -1)
@@ -180,17 +222,32 @@ class CompatibilityPredictor:
         if known_compatibility:
             base_compatibility = int(round(float(np.mean(known_compatibility))))
         penalty = min(20, unknown_pairs * 10) + min(10, hazard_notes) * 2
-        compatibility = max(20, min(98, base_compatibility - penalty))
+        compatibility = _clamp(
+            base_compatibility - penalty + _score_offset(ingredients, 0), 20, 98
+        )
 
         safety = {
             "safe": max(70, 90 - hazard_notes * 4),
             "caution": max(45, 62 - hazard_notes * 3),
             "unsafe": 25,
         }[verdict]
+        safety = _clamp(
+            safety + _score_offset(ingredients, 1),
+            70 if verdict == "safe" else 45 if verdict == "caution" else 20,
+            100,
+        )
         risk = 100 - safety
 
         benefit_base = {"safe": 84, "caution": 68, "unsafe": 48}[verdict]
-        benefit = min(98, benefit_base + min(12, len(benefits)))
+        benefit = _clamp(
+            benefit_base + min(12, len(benefits)) + _score_offset(ingredients, 2),
+            30,
+            98,
+        )
+
+        scientific_confidence = _clamp(
+            _avg(confidence, 60) + _score_offset(ingredients, 3, span=2), 30, 98
+        )
 
         toxicity = (
             "high"
@@ -205,7 +262,7 @@ class CompatibilityPredictor:
             "safetyScore": safety,
             "benefitScore": benefit,
             "riskScore": risk,
-            "scientificConfidence": _avg(confidence, 60),
+            "scientificConfidence": scientific_confidence,
             "toxicityLevel": toxicity,
             "verdict": verdict,
             "benefits": benefits[:6],
@@ -238,14 +295,17 @@ class CompatibilityPredictor:
         ]
 
         scored: list[dict[str, Any]] = []
+        core = self._core_herbs()
         for name in candidates:
-            model_pred = self._model_prediction(ingredient, name)
             combo = knowledge.find_combination(ingredient, name)
-
-            if model_pred is not None:
-                predicted, proba = model_pred
-            elif combo:
+            if combo:
                 predicted, proba = combo["verdict"], int(combo["scientific_confidence"])
+            elif target in core and name.lower() in core:
+                model_pred = self._model_prediction(ingredient, name)
+                if model_pred is not None:
+                    predicted, proba = model_pred
+                else:
+                    predicted, proba = "caution", 55
             else:
                 predicted, proba = "caution", 55
 

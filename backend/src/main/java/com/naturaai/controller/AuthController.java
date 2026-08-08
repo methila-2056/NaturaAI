@@ -3,6 +3,7 @@ package com.naturaai.controller;
 import com.naturaai.dto.AuthResponse;
 import com.naturaai.dto.LoginRequest;
 import com.naturaai.dto.RegisterRequest;
+import com.naturaai.dto.ResetPasswordRequest;
 import com.naturaai.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,12 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> body) {
         authService.forgotPassword(body.getOrDefault("email", ""));
         return ResponseEntity.ok(Map.of("message", "If the account exists, a reset link has been sent."));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.token(), request.password());
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully. You can now sign in."));
     }
 
     @PostMapping("/verify-email")

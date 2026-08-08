@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const links = [
+  { label: "Home", href: "/" },
   { label: "Features", href: "#features" },
   { label: "Remedies", href: "#remedies" },
   { label: "About", href: "#about" },

@@ -3,10 +3,10 @@
 import { motion } from "framer-motion";
 
 const stats = [
-  { value: "20,000+", label: "Plants catalogued" },
-  { value: "500,000+", label: "Combination records" },
-  { value: "5,000+", label: "Diseases mapped" },
-  { value: "97%", label: "Prediction accuracy" },
+  { value: "16", label: "Plants catalogued" },
+  { value: "32", label: "Herb-pair records" },
+  { value: "15", label: "Diseases mapped" },
+  { value: "82%", label: "Model F1 (cross-validation)" },
 ];
 
 export function Stats() {

@@ -1,25 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Activity,
-  Bookmark,
-  FileHeart,
-  History,
-  LineChart,
-  ScanLine,
-  UserRound,
-} from "lucide-react";
+import { Activity, ArrowLeft, Bookmark, FileHeart, ScanLine, UserRound } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useUserStore } from "@/store/useUserStore";
 
-const savedRemedies = [
-  { name: "Immunity Herbal Tea", score: 97, tag: "Cold" },
-  { name: "Hibiscus Hair Oil", score: 91, tag: "Hair Loss" },
-];
+const savedRemedies: { name: string; score: number; tag: string }[] = [];
 
 export default function DashboardPage() {
   const { user } = useUserStore();
@@ -28,6 +17,13 @@ export default function DashboardPage() {
     <main className="min-h-screen">
       <Navbar />
       <div className="mx-auto max-w-6xl px-6 py-12">
+        <Link
+          href="/"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-cream-200/70 transition-colors hover:text-leaf-400"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to home
+        </Link>
         <div className="mb-10 flex items-center gap-6">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-forest-800 text-leaf-400">
             <UserRound className="h-8 w-8" />
@@ -42,12 +38,10 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 sm:grid-cols-2">
           {[
             { icon: Activity, label: "Health Conditions", value: user?.diseases?.length ?? 0 },
             { icon: Bookmark, label: "Saved Remedies", value: savedRemedies.length },
-            { icon: History, label: "Recent Analyses", value: 12 },
-            { icon: LineChart, label: "Health Streak", value: "6 days" },
           ].map((stat) => (
             <Card key={stat.label}>
               <CardContent className="flex items-center gap-4 p-6">

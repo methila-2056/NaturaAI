@@ -51,11 +51,14 @@ public class MailService {
     }
 
     @Async
-    public void sendPasswordResetNotice(String to, String name) {
-        send(to, "Password reset requested for your NaturaAI account",
+    public void sendPasswordResetEmail(String to, String name, String resetUrl) {
+        send(to, "Reset your NaturaAI password",
                 "Hi " + name + ",\n\n"
-                        + "We received a request to reset your NaturaAI account password.\n\n"
-                        + "If you didn't request this, please contact support immediately.\n\n"
+                        + "We received a request to reset your NaturaAI account password. "
+                        + "Click the link below to choose a new password:\n\n"
+                        + resetUrl + "\n\n"
+                        + "This link expires in 30 minutes. If you didn't request this, "
+                        + "you can safely ignore this email.\n\n"
                         + "— The NaturaAI Team");
     }
 

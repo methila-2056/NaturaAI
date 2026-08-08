@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ImagePlus, Leaf, Loader2, ScanSearch } from "lucide-react";
+import { ArrowLeft, ImagePlus, Leaf, Loader2, ScanSearch } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,13 @@ export default function ScanPage() {
     <main className="min-h-screen">
       <Navbar />
       <div className="mx-auto max-w-3xl px-6 py-12">
+        <Link
+          href="/"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-cream-200/70 transition-colors hover:text-leaf-400"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to home
+        </Link>
         <div className="mb-10 flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-forest-800 text-leaf-400">
             <ScanSearch className="h-5 w-5" />

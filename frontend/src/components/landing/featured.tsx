@@ -6,28 +6,28 @@ import { Badge } from "@/components/ui/badge";
 
 const remedies = [
   {
-    name: "Immunity Herbal Tea",
-    ingredients: ["Tulsi", "Ginger", "Honey"],
+    name: "Immunity Infusion",
+    ingredients: ["Tulsi", "Ginger"],
     type: "Internal",
     score: 97,
   },
   {
-    name: "Neem & Aloe Face Wash",
-    ingredients: ["Neem", "Aloe Vera", "Rose Water"],
+    name: "Acne-Fighting Face Wash",
+    ingredients: ["Neem", "Aloe Vera"],
     type: "External",
     score: 94,
   },
   {
-    name: "Hibiscus Hair Oil",
-    ingredients: ["Hibiscus", "Coconut Oil", "Fenugreek"],
-    type: "External",
-    score: 91,
-  },
-  {
-    name: "Ashwagandha Calm Blend",
+    name: "Calm & Focus Blend",
     ingredients: ["Ashwagandha", "Brahmi"],
     type: "Internal",
     score: 95,
+  },
+  {
+    name: "Hair Strength Duo",
+    ingredients: ["Amla", "Hibiscus"],
+    type: "External",
+    score: 92,
   },
 ];
 
