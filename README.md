@@ -124,11 +124,11 @@ The project is deployed as three independent services, each on a free tier.
 
 | Service  | URL                                          | Notes |
 |----------|----------------------------------------------|-------|
-| Backend  | `https://herbguard-backend.onrender.com`     | Service display name is `naturaai-backend`, but the `onrender.com` subdomain slug is **immutable** (fixed at creation). To serve a different hostname you must link a [custom domain](https://render.com/docs/custom-domains). |
+| Backend  | `https://naturaai-backend.onrender.com`      | The `onrender.com` subdomain slug is **immutable** (fixed at creation) — to use a different hostname you must link a [custom domain](https://render.com/docs/custom-domains). |
 | Frontend | `https://naturaai-frontend.vercel.app`       | Vercel project `naturaai-frontend`, root dir `frontend`. |
 | Database | Neon project (scale-to-zero)                 | Backend connects via `DATABASE_URL`; tables auto-create on boot. |
 
-> The Google OAuth **Authorized redirect URI** is `https://herbguard-backend.onrender.com/login/oauth2/code/google`
+> The Google OAuth **Authorized redirect URI** is `https://naturaai-backend.onrender.com/login/oauth2/code/google`
 > and Vercel's `NEXT_PUBLIC_API_URL` points to the same backend URL. If you ever link a custom
 > domain, update both of these together.
 
