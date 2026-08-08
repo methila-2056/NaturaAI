@@ -43,6 +43,12 @@ Trains Random Forest, Gradient Boosting, XGBoost, and LightGBM on the
 combination records and saves the best to `models/predictor.joblib`, which the
 predictor loads automatically at startup.
 
+`xgboost` and `lightgbm` are pinned in `requirements.txt` because their
+pickles are not readable across major versions. After bumping either, retrain
+with the command above — the pipeline reloads and smoke-tests the saved
+artifact before finishing, so a corrupt model is caught at training time
+instead of silently falling back to rule-based prediction at runtime.
+
 ## LLM integration
 
 The assistant answers from the knowledge base first. Set `OPENAI_API_KEY` to

@@ -64,3 +64,22 @@ def test_recommendation_avoids_honey_for_diabetes() -> None:
     recommendations = engine.recommend(diseases=["Diabetes"], treatment_type="internal", limit=5)
     ingredients = {i for r in recommendations for i in r["ingredients"]}
     assert "Honey" not in ingredients
+
+
+def test_model_artifact_loads() -> None:
+    from app.predictor import MODEL_FILE
+
+    assert MODEL_FILE.exists(), "predictor.joblib is missing"
+    predictor = CompatibilityPredictor(use_model=True)
+    assert predictor.model is not None, "model artifact should load (see train_predictor.py)"
+    assert predictor.model_name
+    assert predictor.is_ml_active
+
+
+def test_ml_path_used_for_unknown_in_vocab_pair() -> None:
+    predictor = CompatibilityPredictor(use_model=True)
+    pred = predictor._model_prediction("Moringa", "Rose")
+    assert pred is not None, "ML path should predict for in-vocab, uncurated pairs"
+    verdict, confidence = pred
+    assert verdict in {"safe", "caution", "unsafe"}
+    assert 0 <= confidence <= 100

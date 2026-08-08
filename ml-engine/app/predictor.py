@@ -17,6 +17,7 @@ import joblib
 import numpy as np
 
 from . import knowledge
+from .features import build_pair_vector
 
 MODELS_DIR = Path(__file__).resolve().parent.parent / "models"
 MODEL_FILE = MODELS_DIR / "predictor.joblib"
@@ -56,8 +57,12 @@ def _load_model() -> Any | None:
     try:
         return joblib.load(MODEL_FILE)
     except Exception as ex:
-        logger.warning("Could not load model artifact %s (%s); falling back to rule-based prediction.",
-                       MODEL_FILE.name, ex)
+        logger.warning(
+            "Could not load model artifact %s (%s); falling back to rule-based "
+            "prediction. Regenerate it with: python -m train.train_predictor",
+            MODEL_FILE.name,
+            ex,
+        )
         return None
 
 
@@ -66,36 +71,55 @@ class CompatibilityPredictor:
 
     def __init__(self, use_model: bool = True) -> None:
         self.model = None
+        self.model_name: str | None = None
+        self.meta: dict[str, Any] = {}
         self.herb_index: dict[str, int] = {}
         self.label_to_verdict: dict[int, str] = {0: "unsafe", 1: "caution", 2: "safe"}
         payload = _load_model() if use_model else None
         if payload:
             self.model = payload.get("model")
+            self.meta = payload.get("meta") or {}
+            self.model_name = self.meta.get("model_name") or (
+                type(self.model).__name__ if self.model is not None else None
+            )
             self.herb_index = {
                 name.lower(): i for i, name in enumerate(payload.get("herbs", []))
             }
             labels = payload.get("labels")
             if labels:
                 self.label_to_verdict = {int(i): name for name, i in labels.items()}
+            logger.info(
+                "Loaded compatibility model %r (%d herbs, %d classes).",
+                self.model_name,
+                len(self.herb_index),
+                len(self.label_to_verdict),
+            )
+
+    @property
+    def is_ml_active(self) -> bool:
+        return self.model is not None
 
     def _model_prediction(self, a: str, b: str) -> tuple[str, int] | None:
-        if self.model is None or not self.herb_index:
+        if self.model is None:
             return None
-        size = len(self.herb_index)
         a, b = a.strip().lower(), b.strip().lower()
-        if a not in self.herb_index or b not in self.herb_index:
+        if not self.herb_index or a not in self.herb_index or b not in self.herb_index:
             return None
 
-        def one_hot(name: str) -> np.ndarray:
-            vec = np.zeros(size)
-            vec[self.herb_index[name]] = 1
-            return vec
-
-        features = np.concatenate([one_hot(a), one_hot(b)]).reshape(1, -1)
+        features = build_pair_vector(a, b).reshape(1, -1)
+        expected = getattr(self.model, "n_features_in_", features.shape[1])
+        if features.shape[1] != expected:
+            logger.warning(
+                "Feature size mismatch (model=%d, built=%d); skipping ML.",
+                expected,
+                features.shape[1],
+            )
+            return None
         try:
             label = int(self.model.predict(features)[0])
             proba = self.model.predict_proba(features)[0][label]
-        except Exception:
+        except Exception as ex:
+            logger.warning("Model prediction failed (%s); falling back.", ex)
             return None
         return self.label_to_verdict.get(label, "caution"), int(round(proba * 100))
 

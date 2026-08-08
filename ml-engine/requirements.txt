@@ -5,8 +5,11 @@ python-multipart>=0.0.9
 pandas>=2.2.0
 numpy>=1.26.0
 scikit-learn>=1.5.0
-xgboost>=2.0.0
-lightgbm>=4.3.0
+# Pinned to the versions used to train models/predictor.joblib. XGBoost/LightGBM
+# pickles are not readable across major versions, so the trainer and the runtime
+# must agree on these. Retrain after bumping: python -m train.train_predictor
+xgboost==3.3.0
+lightgbm==4.7.0
 joblib>=1.4.0
 requests>=2.32.0
 Pillow>=10.3.0
