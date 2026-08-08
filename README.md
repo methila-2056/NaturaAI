@@ -135,7 +135,7 @@ The project is deployed as three independent services, each on a free tier.
 | `NEXT_PUBLIC_ML_URL`     | Frontend (Vercel)     | ML engine URL                                      |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Frontend (Vercel) | Optional Google Sign-In client ID                 |
 | `OPENAI_API_KEY`         | ML engine (host only) | Optional LLM explanations — **never** in frontend code or env |
-| `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GOOGLE_REDIRECT_URI` | Backend | Optional Google OAuth login |
+| `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` | Backend | Optional Google OAuth login. Authorized redirect URI must be `https://<backend>.onrender.com/login/oauth2/code/google` (Spring Security's default path) |
 | `SMTP_*` / `MAIL_FROM`   | Backend               | Optional email delivery (prints to console when empty) |
 
 Secrets live only in the hosting provider's dashboard (Vercel/Render/Neon). `.env` files are
