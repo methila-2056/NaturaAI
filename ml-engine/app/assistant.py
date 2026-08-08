@@ -98,6 +98,33 @@ HERB_ALIASES = {
     "shatavari": "Shatavari",
     "amla": "Amla",
     "tulsi": "Tulsi",
+    "ashok": "Ashoka",
+    "arjun": "Arjuna",
+    "bel": "Bilva",
+    "bael": "Bilva",
+    "bel patra": "Bilva",
+    "pipali": "Pippali",
+    "khair": "Khadira",
+    "khadir": "Khadira",
+    "vidang": "Vidanga",
+    "gokhru": "Gokshura",
+    "gokharu": "Gokshura",
+    "anantmool": "Sariva",
+    "anantamul": "Sariva",
+    "motha": "Nagarmotha",
+    "adulsa": "Vasaka",
+    "kapur": "Karpura",
+    "mulethi": "Yastimadhu",
+    "licorice": "Yastimadhu",
+    "sahjan": "Moringa",
+    "drumstick": "Moringa",
+    "bach": "Vacha",
+    "devdar": "Devadaru",
+    "chitrakmool": "Chitrak",
+    "jamun": "Jambu",
+    "jambul": "Jambu",
+    "karela": "Karvellaka",
+    "gudmar": "Meshashringi",
 }
 
 
@@ -188,6 +215,19 @@ def _pair_answer(herbs: list[str], query: str) -> dict[str, Any]:
     return {"answer": text, "source": "pair", "herb": [a, b]}
 
 
+def _herb_keys(herb: str) -> set[str]:
+    """All known names for a herb (its own name, english name, and aliases)
+    so disease guidance can match reliably (e.g. 'mulethi' == 'Licorice')."""
+    keys = {herb.lower()}
+    plant = knowledge.find_plant(herb)
+    if plant and plant.get("english_name"):
+        keys.add(plant["english_name"].strip().lower())
+    for alias, target in HERB_ALIASES.items():
+        if target.lower() == herb.lower():
+            keys.add(alias)
+    return keys
+
+
 def _herb_for_disease_answer(
     herb: str, disease: dict[str, Any], query: str
 ) -> dict[str, Any]:
@@ -195,16 +235,16 @@ def _herb_for_disease_answer(
     if not plant:
         return _herb_answer(herb, query)
 
-    recommended = [h.lower() for h in disease["recommended_herbs"]]
-    avoid = [h.lower() for h in disease["avoid_herbs"]]
-    herb_key = herb.lower()
+    recommended = {h.lower() for h in disease["recommended_herbs"]}
+    avoid = {h.lower() for h in disease["avoid_herbs"]}
+    keys = _herb_keys(herb)
 
-    if herb_key in avoid:
+    if keys & avoid:
         guidance = (
             f"{herb} is generally AVOIDED for {disease['name']}; using it may be "
             f"unsafe for this condition."
         )
-    elif herb_key in recommended:
+    elif keys & recommended:
         guidance = (
             f"{herb} is among the herbs NaturaAI recommends for {disease['name']}."
         )

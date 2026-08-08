@@ -46,6 +46,10 @@ export function Footer() {
             consuming or applying any herbal remedy, especially if you have existing medical
             conditions, are pregnant, nursing, or taking prescription medications.
           </p>
+          <p className="mt-3 text-xs text-cream-200/40">
+            Herbal reference data includes the Amidha Ayurveda Herb Database (Amidha Ayurveda),
+            used under CC BY 4.0.
+          </p>
         </div>
       </div>
     </footer>
