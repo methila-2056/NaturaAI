@@ -109,6 +109,117 @@ have their own `.env.example` files.
 - [Architecture](docs/architecture.md)
 - [Database Schema](docs/database-schema.md)
 
+## Deployment (free tier)
+
+The project is deployed as three independent services, each on a free tier.
+
+| Piece      | Provider            | Free tier                                                        |
+|------------|---------------------|------------------------------------------------------------------|
+| Frontend   | Vercel              | Hobby (100 GB bandwidth/mo, 1M function invocations)             |
+| Backend    | Render              | Free web service (512 MB RAM, 750 hrs/mo, spins down when idle)   |
+| Database   | Neon                 | Free Postgres (0.5 GB/project, scale-to-zero, no card)           |
+| ML engine  | Render (optional)   | Free web service (FastAPI + trained model; backend falls back to heuristics if down) |
+
+### Environment variables
+
+| Variable                 | Where                 | Purpose                                            |
+|--------------------------|-----------------------|----------------------------------------------------|
+| `DATABASE_URL`           | Backend (host)        | JDBC URL of the cloud Postgres, e.g. `jdbc:postgresql://<user>:<pass>@<host>:5432/<db>?sslmode=require` |
+| `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/`DB_PASSWORD` | Backend | Split form used when `DATABASE_URL` is empty (local dev) |
+| `JWT_SECRET`             | Backend (host)        | At least 32 random bytes — generate with `openssl rand -base64 48` |
+| `ALLOWED_ORIGINS`        | Backend (host)        | Comma-separated frontend origins allowed by CORS |
+| `FRONTEND_URL`           | Backend (host)        | Frontend origin (used in emails/redirects)        |
+| `ML_ENGINE_URL`          | Backend (host)        | URL of the deployed ML engine                      |
+| `PORT`                   | Backend (host)        | Set automatically by the host (Render injects it)  |
+| `NEXT_PUBLIC_API_URL`    | Frontend (Vercel)     | Backend URL, e.g. `https://<backend>.onrender.com` |
+| `NEXT_PUBLIC_ML_URL`     | Frontend (Vercel)     | ML engine URL                                      |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Frontend (Vercel) | Optional Google Sign-In client ID                 |
+| `OPENAI_API_KEY`         | ML engine (host only) | Optional LLM explanations — **never** in frontend code or env |
+| `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GOOGLE_REDIRECT_URI` | Backend | Optional Google OAuth login |
+| `SMTP_*` / `MAIL_FROM`   | Backend               | Optional email delivery (prints to console when empty) |
+
+Secrets live only in the hosting provider's dashboard (Vercel/Render/Neon). `.env` files are
+git-ignored; `.env.example` contains placeholders only.
+
+### 1. Database — Neon (free)
+
+1. Sign up at <https://neon.tech> (free, no card).
+2. Create a project → copy the connection string from the dashboard.
+3. Convert it to the JDBC form the backend expects:
+   `postgresql://...` → `jdbc:postgresql://...` and add `?sslmode=require` if missing.
+4. Tables are created automatically on first backend boot (`ddl-auto: update`) and seed data
+   (herbs, disease guidance) is loaded by `DataSeeder`. Optionally run
+   `docs/database-schema.sql` in the Neon SQL editor first.
+
+### 2. Backend — Render (free)
+
+1. Push this repository to GitHub.
+2. In the Render dashboard choose **New → Blueprint**, import the repo, and select
+   `render.yaml`.
+3. Fill in the env vars that are marked "from environment":
+   - `DATABASE_URL` — Neon JDBC URL from step 1
+   - `JWT_SECRET` — `openssl rand -base64 48`
+   - `ALLOWED_ORIGINS` — your Vercel frontend URL (e.g. `https://herbguard.vercel.app`)
+   - `FRONTEND_URL` — same URL
+   - `ML_ENGINE_URL` — the Render URL of the ML engine (optional)
+4. Apply — Render builds `backend/Dockerfile` (Java 21) and serves it on `PORT` (injected).
+
+Free-tier notes: the instance spins down after ~15 min idle (30–60 s cold start) and only one
+free web service is allowed per account — see the ML engine note below.
+
+### 3. ML engine — Render (optional)
+
+The backend analyzes remedies through `ML_ENGINE_URL` and falls back to a built-in heuristic when
+it is unreachable, so the core app works without it. To also deploy the ML engine:
+
+- Add a second web service from `ml-engine/Dockerfile` (Python/FastAPI).
+- Set `OPENAI_API_KEY` there (env only) if you want optional LLM explanations.
+- Render free accounts allow a single free web service; the ML engine must then be added on a
+  paid plan, a second Render account, or another host (e.g. a free Oracle Cloud VM).
+
+### 4. Frontend — Vercel (free)
+
+1. In the Vercel dashboard choose **Add New → Project** and import the GitHub repo.
+2. Set **Root Directory** to `frontend`.
+3. Add env vars: `NEXT_PUBLIC_API_URL=https://<backend>.onrender.com`,
+   `NEXT_PUBLIC_ML_URL=https://<ml-engine>.onrender.com`.
+4. Deploy. The `npm run build` produces fully static pages; no runtime server is needed.
+
+### CORS
+
+The backend allows only origins listed in `ALLOWED_ORIGINS` (defaults to localhost dev origins).
+Set it to your deployed Vercel domain — never `*` in production.
+
+### Local run
+
+```bash
+# Infra (Docker)
+docker compose up -d postgres redis rabbitmq qdrant
+
+# ML engine
+cd ml-engine
+python -m venv .venv && .venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+
+# Backend (JDK 21 + Maven)
+cd backend
+mvn spring-boot:run
+
+# Frontend
+cd frontend
+npm install
+npm run dev
+```
+
+### Local run with Docker (full stack)
+
+```bash
+docker compose up -d --build
+# Frontend http://localhost:3000 · Backend http://localhost:8080 · ML http://localhost:8000
+# pgAdmin http://localhost:5050 · RabbitMQ http://localhost:15672
+```
+
 ## License
 
 Educational project for B.Tech CSE. Intended for informational purposes only.

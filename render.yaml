@@ -1,0 +1,48 @@
+# Render blueprint for the HerbGuard-AI / NaturaAI backend.
+# Import this repo at https://render.com and use the Blueprint to create
+# the backend web service on the FREE plan.
+#
+# Notes:
+# - Free web services spin down after ~15 min of inactivity (cold starts ~30-60s).
+# - Fill in DATABASE_URL, JWT_SECRET, ALLOWED_ORIGINS and FRONTEND_URL below
+#   when creating the service (marked "from environment").
+# - Render injects PORT automatically; the app reads ${PORT}.
+services:
+  - type: web
+    name: herbguard-backend
+    runtime: docker
+    repo: https://github.com/methila-2056/HerbGuard-AI.git
+    plan: free
+    rootDir: backend
+    dockerfilePath: Dockerfile
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: JAVA_OPTS
+        value: "-Xmx384m -XX:+UseContainerSupport"
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: ML_ENGINE_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false

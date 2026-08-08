@@ -1,7 +1,7 @@
 # Environment
 .env
-.env.local
-.env*.local
+.env.*
+!.env.example
 
 # Node / Next.js
 node_modules/

@@ -12,4 +12,5 @@ RUN useradd --system --uid 1001 naturaai
 COPY --from=build /app/target/*.jar app.jar
 USER naturaai
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENV JAVA_OPTS=""
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
