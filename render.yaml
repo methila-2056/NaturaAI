@@ -6,6 +6,9 @@
 # - Free web services spin down after ~15 min of inactivity (cold starts ~30-60s).
 # - Fill in DATABASE_URL, JWT_SECRET, ALLOWED_ORIGINS and FRONTEND_URL below
 #   when creating the service (marked "from environment").
+# - DATABASE_URL for Neon must use the query-param form; the PostgreSQL JDBC
+#   driver rejects user:password@host URLs and misparses them as host:port:
+#     jdbc:postgresql://<neon-host>/<db>?user=<user>&password=<pass>&sslmode=require
 # - Render injects PORT automatically; the app reads ${PORT}.
 services:
   - type: web

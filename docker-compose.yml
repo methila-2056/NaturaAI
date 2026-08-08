@@ -79,6 +79,7 @@ services:
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DATABASE_URL: ${DATABASE_URL:-jdbc:postgresql://postgres:5432/naturaai}
       DB_HOST: postgres
       REDIS_HOST: redis
       RABBIT_HOST: rabbitmq

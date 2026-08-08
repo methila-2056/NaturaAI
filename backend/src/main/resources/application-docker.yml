@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:naturaai}
+    url: ${DATABASE_URL:jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:naturaai}}
     username: ${DB_USER:naturaai}
     password: ${DB_PASSWORD:naturaai}
   data:
