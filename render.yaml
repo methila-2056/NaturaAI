@@ -1,4 +1,4 @@
-# Render blueprint for the HerbGuard-AI / NaturaAI backend.
+# Render blueprint for the NaturaAI backend.
 # Import this repo at https://render.com and use the Blueprint to create
 # the backend web service on the FREE plan.
 #
@@ -14,7 +14,7 @@ services:
   - type: web
     name: naturaai-backend
     runtime: docker
-    repo: https://github.com/methila-2056/HerbGuard-AI.git
+    repo: https://github.com/methila-2056/NaturaAI.git
     plan: free
     rootDir: backend
     dockerfilePath: Dockerfile
