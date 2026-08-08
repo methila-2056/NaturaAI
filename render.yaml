@@ -12,7 +12,7 @@
 # - Render injects PORT automatically; the app reads ${PORT}.
 services:
   - type: web
-    name: herbguard-backend
+    name: naturaai-backend
     runtime: docker
     repo: https://github.com/methila-2056/HerbGuard-AI.git
     plan: free
