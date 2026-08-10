@@ -13,7 +13,7 @@ lightgbm==4.7.0
 joblib>=1.4.0
 requests>=2.32.0
 Pillow>=10.3.0
-pytest>=8.0.0
+pytest>=9.1.1
 
 # Optional: plant recognition with deep learning
 # tensorflow>=2.16.0
