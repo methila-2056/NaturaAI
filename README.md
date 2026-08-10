@@ -87,6 +87,22 @@ npm run dev
 
 Open http://localhost:3000
 
+## Running Tests
+
+Every push to `main`/`develop` runs all three suites in CI (`.github/workflows/ci.yml`).
+Run them locally:
+
+```bash
+# Backend (JUnit 5 + Mockito)
+cd backend && mvn test
+
+# Frontend (Vitest + React Testing Library)
+cd frontend && npm run test
+
+# ML Engine (pytest)
+cd ml-engine && python -m pytest -q
+```
+
 ## Environment Configuration
 
 Copy `.env.example` to `.env` at the repository root and adjust values. Frontend and backend also
@@ -172,7 +188,7 @@ git-ignored; `.env.example` contains placeholders only.
 3. Fill in the env vars that are marked "from environment":
    - `DATABASE_URL` — Neon JDBC URL from step 1
    - `JWT_SECRET` — `openssl rand -base64 48`
-   - `ALLOWED_ORIGINS` — your Vercel frontend URL (e.g. `https://herbguard.vercel.app`)
+   - `ALLOWED_ORIGINS` — your Vercel frontend URL (e.g. `https://naturaai-frontend.vercel.app`)
    - `FRONTEND_URL` — same URL
    - `ML_ENGINE_URL` — the Render URL of the ML engine (optional)
 4. Apply — Render builds `backend/Dockerfile` (Java 21) and serves it on `PORT` (injected).

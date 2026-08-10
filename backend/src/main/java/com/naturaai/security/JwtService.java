@@ -99,8 +99,13 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserPrincipal principal) {
-        final String username = extractUsername(token);
-        return username.equals(principal.getUsername()) && !isTokenExpired(token);
+        try {
+            final String username = extractUsername(token);
+            return username.equals(principal.getUsername()) && !isTokenExpired(token);
+        } catch (Exception ex) {
+            logger.warn("Auth token rejected: {}", ex.toString());
+            return false;
+        }
     }
 
     private boolean isTokenExpired(String token) {
