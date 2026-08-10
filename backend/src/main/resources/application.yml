@@ -65,6 +65,18 @@ naturaai:
 server:
   port: ${PORT:8080}
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: method
+  info:
+    title: NaturaAI API
+    description: Intelligent Herbal Remedy Prediction and Recommendation System
+    version: v1
+
 management:
   endpoints:
     web:

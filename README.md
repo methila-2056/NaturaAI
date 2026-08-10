@@ -1,5 +1,7 @@
 # NaturaAI – Intelligent Herbal Remedy Prediction and Recommendation System
 
+[![CI](https://github.com/methila-2056/NaturaAI/actions/workflows/ci.yml/badge.svg)](https://github.com/methila-2056/NaturaAI/actions/workflows/ci.yml)
+
 > **Disclaimer:** NaturaAI does not replace professional medical advice. Consult a qualified
 > healthcare professional before consuming or applying any herbal remedy, especially if you have
 > existing medical conditions, are pregnant, nursing, or taking prescription medications.
