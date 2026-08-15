@@ -50,20 +50,13 @@
 
 Live deployment captured from the production frontend (Vercel).
 
-| Home — Landing Page | Sign In |
-|:-------------------:|:-------:|
-| ![Home](docs/screenshots/home-viewport.png) | ![Sign In](docs/screenshots/login-viewport.png) |
+| Home — Landing Page | Sign In | Create Account |
+|:-------------------:|:-------:|:--------------:|
+| ![Home](docs/screenshots/home-viewport.png) | ![Sign In](docs/screenshots/login-viewport.png) | ![Register](docs/screenshots/register-viewport.png) |
 
-<details>
-<summary><b>Full-page preview</b></summary>
-
-<a href="docs/screenshots/home-full.png">
-  <img src="docs/screenshots/home-full.png" alt="Home — full page preview" width="480" />
-</a>
-
-Click the preview to open the full-resolution image.
-
-</details>
+| Remedy Analyzer | Plant Scanner | AI Assistant | Dashboard |
+|:---------------:|:-------------:|:------------:|:---------:|
+| ![Analyze](docs/screenshots/analyze-viewport.png) | ![Scan](docs/screenshots/scan-viewport.png) | ![Chatbot](docs/screenshots/chatbot-viewport.png) | ![Dashboard](docs/screenshots/dashboard-viewport.png) |
 
 ---
 
