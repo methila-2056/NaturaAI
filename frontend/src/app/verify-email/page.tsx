@@ -14,22 +14,32 @@ function VerifyEmailContent() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const token = params.get("token");
-    if (!token) {
-      setState("error");
-      setMessage("Missing verification token.");
-      return;
-    }
+    let cancelled = false;
     (async () => {
+      const token = params.get("token");
+      if (!token) {
+        if (!cancelled) {
+          setState("error");
+          setMessage("Missing verification token.");
+        }
+        return;
+      }
       try {
         const res = await api.verifyEmail(token);
-        setState("success");
-        setMessage(res.message);
+        if (!cancelled) {
+          setState("success");
+          setMessage(res.message);
+        }
       } catch (err) {
-        setState("error");
-        setMessage(err instanceof Error ? err.message : "Verification failed");
+        if (!cancelled) {
+          setState("error");
+          setMessage(err instanceof Error ? err.message : "Verification failed");
+        }
       }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, [params]);
 
   return (
