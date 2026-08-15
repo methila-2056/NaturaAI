@@ -2,7 +2,7 @@ fastapi>=0.115.0
 uvicorn[standard]>=0.30.0
 pydantic>=2.8.0
 python-multipart>=0.0.9
-pandas>=2.2.0
+pandas>=3.0.5
 numpy>=1.26.0
 scikit-learn>=1.5.0
 # Pinned to the versions used to train models/predictor.joblib. XGBoost/LightGBM
