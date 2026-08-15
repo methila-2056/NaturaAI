@@ -1,0 +1,635 @@
+================================================================================
+                      NATURAAI
+        PRODUCT REQUIREMENTS DOCUMENT (PRD)
+================================================================================
+
+Document Title : NaturaAI - Intelligent Herbal Remedy Prediction & Recommendation System
+Document Type  : Product Requirements Document (PRD)
+Version        : 1.0
+Status         : APPROVED FOR DEVELOPMENT
+Author         : Product Management
+Owner          : Product / Engineering Leadership
+Last Updated   : August 2026
+Confidentiality: Internal - Public Repository (README, docs/ archived alongside)
+
+--------------------------------------------------------------------------------
+0. DOCUMENT CONTROL
+--------------------------------------------------------------------------------
+
+| Version | Date       | Author           | Change Summary                      |
+|---------|------------|------------------|-------------------------------------|
+| 0.1     | Jul 2026   | Product Mgmt     | Initial draft                       |
+| 1.0     | Aug 2026   | Product Mgmt     | Alignment with v1.0 shipped scope;  |
+|         |            |                  | updated frontend stack to Next 16   |
+
+Reviewers: Engineering, ML/AI, Quality Assurance, Security, Legal/Compliance (advisory)
+
+--------------------------------------------------------------------------------
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+
+NaturaAI is an AI-powered healthcare and herbal intelligence platform that enables
+users to discover safe, effective natural remedies using medicinal plants, herbs,
+flowers, roots, fruits, and other naturally occurring ingredients. The platform
+combines a curated herbal knowledge base, an ensemble machine-learning (ML)
+prediction engine, a personalized recommendation engine, a grounded large
+language model (LLM) health assistant, and a plant-recognition capability.
+
+The core differentiator is *safety-first, evidence-aware personalization*: every
+prediction is contextualized against the user's age, gender, existing conditions,
+allergies, and medications, and every output carries a verdict
+(SAFE / CAUTION / UNSAFE), quantitative safety/benefit/risk/confidence scores,
+preparation guidance, dosage, and usage frequency.
+
+The platform is architected as a three-tier monorepo (Next.js frontend, Spring
+Boot REST backend, Python/FastAPI ML engine) with PostgreSQL, Redis, RabbitMQ,
+and Qdrant backing storage, caching, async messaging, and vector search. It is
+already deployed on free-tier infrastructure (Vercel, Render, Neon) and runs a
+full three-suite CI pipeline. NaturaAI is currently an educational product and is
+positioned for evolution into a commercially viable consumer-health platform.
+
+--------------------------------------------------------------------------------
+2. PRODUCT VISION
+--------------------------------------------------------------------------------
+
+> To become the trusted, evidence-grounded digital companion for anyone who
+> wants to incorporate natural and herbal remedies into their health routine -
+> safely, personally, and confidently.
+
+Vision Statement (aspirational):
+"Every person who seeks natural wellness has access to a personal, safe,
+evidence-aware herbal intelligence guide - turning centuries of traditional
+knowledge into actionable, personalized, and clinically cautious advice."
+
+Product Mission:
+"Make herbal wellness safe, personalized, and accessible through AI - combining
+curated traditional knowledge, ML-based prediction, and modern web technology,
+with user safety as the non-negotiable foundation."
+
+--------------------------------------------------------------------------------
+3. PROBLEM STATEMENT
+--------------------------------------------------------------------------------
+
+3.1 Market / User Problem
+-------------------------
+- Traditional herbal knowledge is vast but fragmented, often undocumented, and
+  inconsistently applied.
+- Consumers frequently combine multiple herbs without reliable information about
+  safety, interactions, appropriate dosage, or contraindications for their
+  specific health profile.
+- Existing online sources are generic (one-size-fits-all), not personalized, and
+  rarely contextualized to age, gender, co-morbidities, allergies, or
+  medications.
+- There is a high risk of adverse interactions (e.g., honey and diabetes,
+  licorice and hypertension, ashwagandha and thyroid medication) that generic
+  advice fails to surface.
+- Individuals, students, and wellness practitioners lack a single, credible,
+  interactive tool to reason about herbal combinations and obtain preparation
+  and dosage guidance.
+
+3.2 Why Now
+-----------
+- Growing global interest in natural and traditional medicine and preventive
+  wellness.
+- Advances in ML, LLMs, and embedding/vector search make personalized,
+  evidence-grounded reasoning practical at consumer scale.
+- Low-cost cloud and free-tier infrastructure (Vercel, Render, Neon) allow a
+  full-stack, production-grade deployment at near-zero operating cost.
+
+--------------------------------------------------------------------------------
+4. PRODUCT GOALS & SUCCESS METRICS
+--------------------------------------------------------------------------------
+
+4.1 Strategic Goals
+-------------------
+G1. Safety first: Every recommendation is personalized and carries a clear
+    verdict, toxicity level, and safety warnings.
+G2. Trust through grounding: All AI output is grounded in a curated knowledge
+    base; LLM output is optional and always ends with a safety disclaimer.
+G3. Accessible intelligence: Deliver a fast, responsive, intuitive consumer web
+    experience on a free-tier hosting footprint.
+G4. Continuously improving data: Grow the herb catalog and curated combination
+    records with attribution and versioning.
+G5. Readiness for commercialization: Architecture and UX positioned for
+    monetization (premium tiers, B2B APIs, partner channels) without rework.
+
+4.2 North Star Metric
+---------------------
+Number of verified users who complete a personalized remedy analysis within 30
+days of registration (engaged wellness sessions).
+
+4.3 Primary KPIs (targets for first 12 months, post-commercial launch)
+---------------------------------------------------------------------
+| KPI                              | Baseline        | Target           |
+|----------------------------------|-----------------|------------------|
+| Registered users                 | --              | 50,000           |
+| Weekly active users (WAU)         | --              | 10,000           |
+| Remedy analyses completed /mo    | --              | 100,000          |
+| Analysis-to-satisfaction rate    | --              | >= 75%           |
+| Assistant satisfaction           | --              | >= 70%           |
+| Safety-flagged outputs surfaced  | 100% surfaced   | 100%             |
+| p95 analysis latency             | < 3 s           | < 1.5 s          |
+| Service uptime (frontend/backend)| --              | >= 99.5%         |
+| CI green rate on main            | 100%            | >= 95%           |
+
+4.4 Guardrail Metrics (must never degrade)
+------------------------------------------
+- Accuracy of verdict vs. curated ground truth on held-out pair records.
+- Rate of "unsafe/unsupported" claims surfaced vs. suppressed.
+- Security posture: secrets exposure = 0; dependency vulnerabilities triaged.
+
+--------------------------------------------------------------------------------
+5. TARGET USERS & PERSONAS
+--------------------------------------------------------------------------------
+
+P1. "The Wellness Explorer" - Consumers (primary)
+    Age 18-45; interested in natural health, preventive wellness, herbal teas,
+    skincare, hair care. Wants safe, simple, personalized guidance.
+
+P2. "The Condition-Aware User" (primary, high-stakes)
+    Manages a condition (diabetes, hypertension, asthma, PCOS, thyroid, skin
+    allergy). Needs clear safety flags, avoidance lists, and dose guidance.
+
+P3. "The Formulator / DIY Hobbyist" (secondary)
+    Creates own remedies (face washes, hair oils, soaps, teas). Values
+    combination compatibility, complementary suggestions, preparation steps.
+
+P4. "The Student / Researcher" (secondary)
+    B.Tech/health sciences students, hobbyist botanists. Values the knowledge
+    base, scientific names, toxicity data, and references.
+
+P5. "The Practitioner" (future, advisory role)
+    Ayurvedic/herbal practitioners using the tool as a reference for screening
+    combinations before recommending. (Educational context today.)
+
+--------------------------------------------------------------------------------
+6. SCOPE
+--------------------------------------------------------------------------------
+
+6.1 In Scope (v1.0 - shipped)
+-----------------------------
+- Web application (responsive, desktop-first but mobile-usable).
+- Account lifecycle: email/password registration, email verification, login,
+  forgot/reset password, Google OAuth2 Sign-In, JWT-secured sessions.
+- Health profile: age, gender, height, weight, country, lifestyle, dietary
+  preferences, diseases, allergies, medications.
+- Remedy analyzer: multi-ingredient selection (search, pick, or custom add),
+  remedy-type selection (internal/external), AI complementary-ingredient
+  suggestions, and full analysis output (scores, verdict, benefits, risks,
+  preparation, dosage, frequency, rationale).
+- Personalized recommendation engine: disease/symptom-to-herb mapping with
+  avoidance and allergen filtering.
+- Herbal knowledge base: 368+ herbs with scientific names, family, region,
+  benefits, side effects, contraindications, preparation methods, toxicity.
+- Curated combination records (herb-pair verdicts, scores, scientific
+  confidence) consumed by both the rule-based and ML paths.
+- Grounded assistant (chatbot): natural-language Q&A from the knowledge base,
+  with optional LLM-backed explanations.
+- Plant scanner (scan): image upload with plant identification (v1 = heuristic
+  stub with a defined API contract; deep-learning model swap-in ready).
+- Dashboard: saved remedies, history, user profile summary.
+- ML engine: ensemble compatibility predictor (Random Forest, Gradient Boosting,
+  XGBoost, LightGBM) with deterministic fallback to a rule-based engine when the
+  ML service is unavailable.
+- Observability: /health endpoints, structured logs, CI test suites for all
+  three tiers.
+
+6.2 Out of Scope (v1.0)
+-----------------------
+- Native iOS/Android applications (web only).
+- E-commerce / in-app payments.
+- Telemedicine, video consultations, and direct practitioner booking.
+- Mobile notifications/Push.
+- Multi-language localization (English + Hindi vernacular aliases supported at
+  the data level only).
+- Full clinical-grade model validation and regulatory certification.
+- Offline mode.
+- Multi-tenancy/B2B administration consoles.
+
+6.3 Future Scope (v2.x roadmap)
+-------------------------------
+- Premium tier: advanced analytics, personalized wellness plans, saved-remedy
+  libraries, PDF reports.
+- B2B/API platform for formulators and wellness brands.
+- Production deep-learning plant recognition (EfficientNet/ResNet/ViT).
+- Full Qdrant semantic retrieval for the assistant.
+- Multi-language support and regional herb datasets.
+- Mobile responsive PWA, then native apps.
+- Clinical advisory review layer and citation database expansion.
+
+--------------------------------------------------------------------------------
+7. PRINCIPLES & DESIGN TENETS
+--------------------------------------------------------------------------------
+
+1.  Safety over optimization - never optimize for engagement at the cost of
+    safety or accuracy.
+2.  Grounded AI - prefer knowledge-base grounding over unconstrained generation;
+    the LLM is an explainer, not the source of truth.
+3.  Personalization with caution - personalize aggressively but always surface
+    condition/allergy/medication-specific warnings.
+4.  Honest confidence - every score is disclosed; unknown pairs default to
+    CAUTION, never to unverified SAFE.
+5.  Graceful degradation - the core app works even when the ML engine is
+    unreachable (rule-based fallback).
+6.  Evidence traceability - curated records carry a scientific-confidence
+    score; datasets are attributed (e.g., Amidha dataset, CC-BY-4.0).
+7.  Transparency of disclaimer - every consumer-facing output carries a
+    medical-disclaimer notice.
+
+--------------------------------------------------------------------------------
+8. FUNCTIONAL REQUIREMENTS (PRIORITIZED - MoSCoW)
+--------------------------------------------------------------------------------
+
+Legend: [M] Must have (v1.0) | [S] Should have (v1.x) | [C] Could have | [W] Won't have (now)
+
+8.1 Authentication & Accounts
+-----------------------------
+FR-001 [M] User registers with email + password; password stored as BCrypt hash.
+FR-002 [M] Email verification token issued and verified (link + API).
+FR-003 [M] Login issues a stateless JWT (signed with a 32+ byte secret).
+FR-004 [M] Google OAuth2 Sign-In with redirect back to the frontend carrying a
+           NaturaAI token.
+FR-005 [M] Forgot-password and reset-password flows.
+FR-006 [M] GET/PUT current user profile (auth-protected).
+FR-007 [S] Rate limiting on auth endpoints to deter brute force.
+
+8.2 Herbal Knowledge Base
+-------------------------
+FR-010 [M] Expose a herb catalog (name, scientific name, family, region,
+           active compounds, medicinal properties, benefits, side effects,
+           contraindications, preparation methods, toxicity level).
+FR-011 [M] Herb search (GET /api/v1/herbs/search?q=...).
+FR-012 [M] Herb lookup by exact name.
+FR-013 [M] Seed data: 368+ herbs (Amidha-derived catalog), 39 curated
+           combinations, 15 disease-herb mappings on first boot (idempotent).
+FR-014 [S] Support Hindi/vernacular aliases at the data level (assistant
+           matching), e.g., tulsi, haldi, adrak, methi.
+FR-015 [S] Version/attribute datasets (source citation) for traceability.
+
+8.3 Remedy Analysis (Core)
+--------------------------
+FR-020 [M] Multi-ingredient selection via chips, search, and custom add.
+FR-021 [M] Remedy-type selection: Internal (tea, juice, powder, capsules,
+           immunity booster) and External (face wash, hair oil, face pack,
+           shampoo, soap, cream, lotion, gel).
+FR-022 [M] Analyze endpoint accepts ingredients + remedy type + optional
+           profile (age, gender, diseases, allergies, medications).
+FR-023 [M] Output a verdict: SAFE / CAUTION / UNSAFE.
+FR-024 [M] Output scores 0-100: compatibility, safety, benefit, risk,
+           scientific confidence.
+FR-025 [M] Output toxicity level: LOW / MEDIUM / HIGH.
+FR-026 [M] Output benefits and risks/cautions (deduplicated, capped lists).
+FR-027 [M] Output preparation steps, recommended quantity, usage frequency,
+           and a human-readable rationale.
+FR-028 [M] At least two ingredients required; validate on the backend (422 on
+           violation).
+FR-029 [M] Profile-aware warnings: diabetes (sweetening herbs), hypertension
+           (licorice/sodium), PCOS/thyroid (hormone-active herbs), pollen/nut
+           allergies.
+FR-030 [M] Deterministic per-combination score jitter so repeat analyses are
+           stable and different sets differ (seeded by ingredient set).
+FR-031 [M] AI complementary-ingredient suggestions ranked by model verdict +
+           confidence (SAFE first, then CAUTION, then UNSAFE).
+FR-032 [M] Fall back to the rule-based engine (curated pairs + hazard rules)
+           when the ML engine is unreachable.
+FR-033 [S] Persist completed analyses/recommendations for the authenticated user
+           (dashboard history).
+
+8.4 Personalized Recommendation Engine
+--------------------------------------
+FR-040 [M] Recommend herbs for user-reported diseases with avoidance-list
+           filtering and allergen filtering.
+FR-041 [M] Fallback herb selection when no disease mapping matches
+           (internal/external, age- and gender-aware).
+FR-042 [M] Return suggested blends with verdict, benefit/risk scores, benefits,
+           risks.
+FR-043 [S] Limit/rank control (e.g., top-N suggestions) exposed via API.
+
+8.5 Grounded Assistant (Chatbot)
+--------------------------------
+FR-050 [M] Natural-language Q&A covering herb info, pair verdicts, and
+           disease guidance (greeting/thanks recognition included).
+FR-051 [M] Match vernacular aliases (Hindi/common names) to canonical herbs.
+FR-052 [M] Grounded first: answer from knowledge base; escalate to LLM only when
+           a provider key is configured; always append the medical disclaimer.
+FR-053 [S] Return the grounding source type (pair, herb, disease, herb-disease,
+           llm, generic) for transparency.
+FR-054 [S] Friendly unknown-input handling that suggests example queries.
+
+8.6 Plant Scanner
+-----------------
+FR-060 [M] Upload an image; decode and validate (400 on unreadable input).
+FR-061 [M] Return identified plant name + confidence + medicinal uses.
+FR-062 [S] Provide a deterministic heuristic stub that honors the API contract
+           so the pipeline is testable end-to-end.
+FR-063 [S] Pluggable deep-learning recognizer (EfficientNet/ResNet50/ViT
+           checkpoint) enabled via dependencies/config.
+
+8.7 Dashboard & Persistence
+---------------------------
+FR-070 [M] Dashboard showing user health conditions count and saved remedies.
+FR-071 [M] Profile summary and quick navigation to analyze/scan/chatbot.
+FR-072 [S] Saved-remedy library and analysis history (persisted).
+FR-073 [C] Analytics view (usage, common analyses, health insights).
+
+8.8 Administration & Observability
+----------------------------------
+FR-080 [M] /health liveness for backend and ML engine.
+FR-081 [M] CI pipeline (GitHub Actions) running backend (Maven), frontend
+           (Vitest + ESLint + build), and ML engine (pytest) on push/PR.
+FR-082 [S] Audit/AI-log storage tables (requests, responses, model, latency)
+           scaffolded for analytics and compliance.
+FR-083 [S] Async audit/notification wiring via RabbitMQ.
+
+--------------------------------------------------------------------------------
+9. NON-FUNCTIONAL REQUIREMENTS
+--------------------------------------------------------------------------------
+
+NFR-1 Performance
+    - Analysis response p95 < 3.0 s (target < 1.5 s) including ML round-trip.
+    - Frontend first-contentful paint < 2.5 s on 3G; static pages pre-rendered.
+    - ML prediction p95 < 800 ms for a 2-5 ingredient set.
+
+NFR-2 Scalability & Availability
+    - Stateless backend (JWT) horizontally scalable; Redis for cache.
+    - Graceful degradation when ML engine is down (rule-based fallback).
+    - Uptime target >= 99.5% on deployment hosts.
+
+NFR-3 Security
+    - JWT signed with a 32+ byte secret; Authorization header enforcement via
+      JwtAuthFilter on protected endpoints.
+    - Passwords hashed with BCrypt; secrets only in host dashboards (never
+      committed); .env git-ignored; .env.example placeholders only.
+    - Scoped CORS via ALLOWED_ORIGINS (never "*" in production).
+    - ML OPENAI_API_KEY server-side only; never exposed to the frontend.
+    - Security policy published (SECURITY.md) with private disclosure path.
+
+NFR-4 Compliance, Safety & Ethics
+    - Every consumer output carries the medical disclaimer.
+    - No definitive medical claims; assistant ends with a safety disclaimer.
+    - Data handling documented (profile PII: age, gender, country, conditions).
+
+NFR-5 Reliability & Quality
+    - Three automated test suites must pass on every main merge (CI gate).
+    - Model artifact smoke-tested at training time; corrupt artifact falls back
+      deterministically (no silent degraded behavior).
+    - Deterministic, seeded scoring to keep outputs stable and auditable.
+
+NFR-6 Maintainability
+    - Monorepo with per-tier README, docs/architecture.md,
+      docs/database-schema.sql.
+    - Adhere to repository conventions; automated formatting/lint.
+
+NFR-7 Compatibility
+    - Modern evergreen browsers (Chrome, Edge, Firefox, Safari latest-2).
+    - Server-rendered/static frontend deployable on Vercel without runtime
+      server.
+
+--------------------------------------------------------------------------------
+10. SYSTEM ARCHITECTURE (SUMMARY)
+--------------------------------------------------------------------------------
+
+Browser
+   │ HTTP/HTTPS
+   ▼
+┌────────────────────┐      ┌────────────────────────┐
+│ Frontend           │      │ Backend                │
+│ Next.js + React 19 │─────▶│ Spring Boot 4 / Java 21│────▶ PostgreSQL (Neon)
+│ TypeScript         │ HTTP │ JWT + OAuth2           │───▶ Redis (cache)
+│ Tailwind/ShadCN    │      │ JPA / Hibernate        │───▶ RabbitMQ (async)
+└────────────────────┘      └───────────┬────────────┘
+                                        │ REST
+                               ┌────────▼───────────┐
+                               │ ML Engine          │───▶ Qdrant (vectors)
+                               │ FastAPI (Python)   │───▶ models/predictor.joblib
+                               └────────┬───────────┘
+                                        │ optional
+                                        ▼
+                          LLM (Llama 4 / Gemma / Mistral / OpenAI)
+
+Key flows:
+1. Analyze: /analyze -> POST /api/v1/remedies/analyze -> ML /predict -> response
+   (fallback to rule-based heuristic if ML unreachable).
+2. Recommend: /recommend -> disease/avoidance mapping + ML scoring.
+3. Suggest: /suggest -> ML-ranked complementary ingredients.
+4. Assistant: /assistant -> knowledge base grounding -> optional LLM explainer.
+5. Scan: /recognize -> image decode -> recognizer (heuristic stub v1).
+
+Data volumes (v1):
+- Herbs: 368+ in backend catalog + 368 in ML plants.csv (Amidha dataset,
+  CC-BY-4.0, attributed in footer).
+- Combinations: 39 curated pairs with verdicts and scores.
+- Diseases: 15 disease-to-herb mappings (symptoms, recommended, avoid).
+
+--------------------------------------------------------------------------------
+11. USER JOURNEY (PRIMARY FLOW)
+--------------------------------------------------------------------------------
+
+1. Land on homepage (/) - hero, capabilities, featured herbs, stats,
+   testimonials.
+2. Register / sign in (email or Google); verify email if applicable.
+3. Complete or confirm health profile (conditions, allergies).
+4. Navigate to "Analyze" -> 4-step wizard:
+   a. Health information (conditions, allergies)
+   b. Remedy type (internal/external)
+   c. Ingredients (chips + search + custom; optional AI suggestions)
+   d. Result: verdict badge, five scores, toxicity, benefits, risks,
+      preparation, dosage, frequency, rationale, disclaimer.
+5. Save/return to dashboard; ask the assistant follow-up questions; scan a
+   plant image.
+6. Repeat and refine over time; history preserved for the user.
+
+Edge cases:
+- Zero/one ingredient -> blocked with clear messaging.
+- Unknown ingredient -> added as custom; pairs default to CAUTION with a
+  "limited data" warning.
+- ML engine down -> heuristic response with identical contract (graceful).
+- Diabetic user selecting honey -> surfaced risk note + reduced safety score.
+
+--------------------------------------------------------------------------------
+12. DATA REQUIREMENTS
+--------------------------------------------------------------------------------
+
+12.1 Entities (PostgreSQL)
+--------------------------
+users, user_profiles (+ diseases/allergies/medications), sessions, herbs (+
+properties/benefits/side effects/contraindications/preparation methods),
+herb_combinations (+ benefits/risks), diseases (+ symptoms/recommended/avoid),
+remedies (+ ingredients/steps), recommendations, medical_references, images,
+ai_logs, user_history.
+
+12.2 ML Data
+------------
+- plants.csv: 368 herbs (name, scientific name, family, region, benefits, side
+  effects, toxicity, usage, english name).
+- combinations.csv: 39 curated pair verdicts + scores + confidence.
+- diseases.csv: 15 mappings.
+- Trained artifact: models/predictor.joblib (ensemble; XGBoost/LightGBM pinned
+  because pickles are not portable across major versions).
+
+12.3 Data Quality & Governance
+------------------------------
+- Unique herb names enforced; combination pairs unique (herb_a, herb_b).
+- Curated records carry scientific-confidence scores.
+- Dataset attribution preserved (Amidha dataset, CC-BY-4.0).
+- Retraining requires artifact smoke-test before shipping.
+
+--------------------------------------------------------------------------------
+13. AI / ML REQUIREMENTS
+--------------------------------------------------------------------------------
+
+13.1 Compatibility Predictor
+----------------------------
+- Input: ingredient set + remedy type (+ optional profile for personalization
+  layer).
+- Pipeline: curated pair lookup -> trained model prediction (only for core
+  herbs seen in training) -> rule-based hazard/contraindication layer ->
+  deterministic seeded scoring.
+- Verdict rule: worst verdict across all pairs wins (UNSAFE > CAUTION > SAFE).
+- Confidence: curated scientific confidence or model probability; unknown pairs
+  default to 55% with a caution note.
+
+13.2 Personalization Rules (examples)
+-------------------------------------
+- Diabetes: flag honey/sweetening herbs; fenugreek sugar-lowering caution.
+- Hypertension: flag licorice/high-sodium preparations.
+- PCOS/Thyroid: flag hormone-active herbs (fenugreek, ashwagandha).
+- Pollen allergy: cross-reactivity note (chamomile, tulsi).
+- Nut allergy: check carrier oils in external formulations.
+
+13.3 LLM Assistant
+------------------
+- Retrieval-first; provider keys optional (OPENAI_API_KEY / HUGGINGFACE_API_KEY
+  / OPENAI_BASE_URL for local Llama 4, Gemma, Mistral via Ollama/vLLM).
+- System prompt enforces caution; max_tokens bounded (300); disclaimer appended.
+
+13.4 Plant Recognition
+----------------------
+- v1 heuristic stub honoring the API contract; v2 trained vision model.
+
+13.5 Model Governance
+---------------------
+- Training: python -m train.train_predictor (RF, GB, XGB, LGBM; best saved).
+- Artifact validation at save time (reload + smoke test).
+- Runtime fallback: any failure -> rule-based path, never a crash.
+
+--------------------------------------------------------------------------------
+14. UX REQUIREMENTS
+--------------------------------------------------------------------------------
+
+UX-1  Visual identity: nature-inspired palette (forest/leaf/cream/sun/terra),
+      calm, trustworthy, and accessible.
+UX-2  All critical actions (analyze, save, sign in) reachable in <= 3 clicks.
+UX-3  Analysis result renders as scannable cards: verdict badge, score grid,
+      benefits vs. risks, preparation steps, disclaimer.
+UX-4  Color-coded verdicts: SAFE (green), CAUTION (amber), UNSAFE (red).
+UX-5  Loading states for async AI actions (predicting, thinking).
+UX-6  Empty states with helpful guidance (no suggestions yet, no saved
+      remedies).
+UX-7  Motion (Framer Motion) for step transitions; reduced-motion safe.
+UX-8  Keyboard-accessible forms; semantic HTML; alt text for meaningful icons.
+UX-9  Mobile-first responsive layout with a max-width container.
+
+--------------------------------------------------------------------------------
+15. RELEASE PLAN & MILESTONES
+--------------------------------------------------------------------------------
+
+M0  Research & dataset curation        - DONE
+M1  Core scaffold (monorepo, CI)       - DONE
+M2  Auth + profiles + herb KB          - DONE
+M3  Analysis engine (ML + fallback)    - DONE
+M4  Recommendation + assistant         - DONE
+M5  Scanner + dashboard                - DONE
+M6  Production deployment (free tier)  - DONE (Vercel/Render/Neon)
+M7  Commercial hardening (v1.5)        - Next:
+    - Premium tier + saved-remedy library (FR-033/FR-072)
+    - Expanded combination curation
+    - Deep-learning plant recognition (FR-063)
+M8  Platform expansion (v2.0)          - Future:
+    - B2B API, native apps, multilingual, Qdrant semantic assistant
+
+--------------------------------------------------------------------------------
+16. RISKS & MITIGATIONS
+--------------------------------------------------------------------------------
+
+| Risk                                      | Impact | Likelihood | Mitigation                                     |
+|-------------------------------------------|--------|------------|------------------------------------------------|
+| Incorrect/unsafe combination guidance     | High   | Medium     | Conservative CAUTION default, disclaimers, curated ground truth, profile-aware warnings |
+| LLM producing unsupported claims          | High   | Medium     | Retrieval-first grounding; fixed system prompt; disclaimers; optional keys |
+| ML artifact / engine unavailable          | Medium | Medium     | Rule-based fallback; artifact smoke-test at train time |
+| Dependency vulnerabilities                | Medium | Medium     | Dependabot PRs weekly (npm/Maven/pip/Actions), SECURITY.md disclosure path |
+| Bleeding-edge major-version breakage      | Medium | Medium     | Combined upgrades via coordinated PR; CI gates on all three suites |
+| Data attribution / licensing              | Medium | Low        | Preserve CC-BY-4.0 attribution (Amidha dataset) |
+| PII exposure                              | High   | Low        | Secrets in host dashboards only; scoped CORS; JWT auth; security policy |
+
+--------------------------------------------------------------------------------
+17. ACCEPTANCE CRITERIA (SUMMARY)
+--------------------------------------------------------------------------------
+
+AC-1 Analysis returns a valid, complete response for 2+ ingredients with all
+     five scores, toxicity, verdict, benefits, risks, preparation, quantity,
+     frequency, and rationale.
+AC-2 With ML engine unreachable, the same API contract is honored by the
+     heuristic fallback.
+AC-3 A diabetic profile selecting honey surfaces a blood-sugar risk and a
+     reduced safety score.
+AC-4 Duplicate ingredient selections are ignored; case-insensitive matching.
+AC-5 Authentication flows (register, verify, login, OAuth, reset) complete
+     without error under automated tests.
+AC-6 All three CI suites (Maven, Vitest+ESLint+build, pytest) pass on main.
+AC-7 The assistant answers a known herb/pair/disease question from the
+     knowledge base without requiring an LLM key.
+AC-8 Deployed production URLs (frontend, backend, database) resolve and report
+     healthy status.
+
+--------------------------------------------------------------------------------
+18. ANALYTICS & OBSERVABILITY
+--------------------------------------------------------------------------------
+
+- Structured logging per service; /health liveness endpoints.
+- AI log table captures request/response/model/latency for audit and analytics.
+- CI artifacts record test results for all three tiers.
+- Product metrics (to instrument): registrations, activations, analyses,
+  verdict distribution, suggestion adoption, assistant queries, scan usage,
+  latency percentiles, error rates.
+
+--------------------------------------------------------------------------------
+19. FUTURE ROADMAP (SUMMARY)
+--------------------------------------------------------------------------------
+
+v1.5 (Commercial hardening):
+  - Saved remedies, history, PDF reports; premium tier (payments out of scope
+    for v1 but architecture-ready).
+  - Expanded curated combinations + scientific citations.
+  - Deep-learning plant recognition.
+v2.0 (Platform expansion):
+  - B2B formulation API, semantic Qdrant retrieval, multilingual + regional
+    datasets, native mobile, clinical advisory review layer.
+
+--------------------------------------------------------------------------------
+20. APPENDICES
+--------------------------------------------------------------------------------
+
+A. Tech stack reference (current): Next.js 16 / React 19 / TypeScript;
+   Spring Boot 4 / Java 21; FastAPI / Python; PostgreSQL (Neon); Redis;
+   RabbitMQ; Qdrant; JWT + OAuth2 (Google); Tailwind 4 / ShadCN; Framer
+   Motion; Zustand; Vitest; JUnit 5 / Mockito; pytest; GitHub Actions;
+   Docker / docker-compose; Vercel / Render deployment.
+B. Reference documentation: README.md, docs/architecture.md,
+   docs/database-schema.sql, backend/README.md, ml-engine/README.md,
+   SECURITY.md, CONTRIBUTING.md.
+C. Source data: data/herbs_amidha.json, data/plants.csv, data/combinations.csv,
+   data/diseases.csv; backend herbs_catalog.csv.
+
+--------------------------------------------------------------------------------
+DISCLAIMER
+--------------------------------------------------------------------------------
+NaturaAI is an educational product. It does not replace professional medical
+advice. Users must consult a qualified healthcare professional before consuming
+or applying any herbal remedy, especially with existing conditions, pregnancy,
+nursing, or prescription medications. This document is informational and does
+not constitute medical, regulatory, or legal guidance.
+
+================================================================================
+END OF PRODUCT REQUIREMENTS DOCUMENT
+================================================================================

@@ -1,0 +1,469 @@
+================================================================================
+                            NATURAAI
+              BUSINESS REQUIREMENTS DOCUMENT (BRD)
+================================================================================
+
+Document ID:      NAT-BRD-001
+Version:          1.0
+Status:           Draft
+Date:             2026-08-15
+Owner:            Product & Business Strategy (VP Product)
+Reviewers:        Engineering, ML, Design, Legal/Compliance, Marketing
+Companion Doc:    PRD (NAT-PRD-001) - Product Requirements Document
+Applies To:       NaturaAI platform (web app, ML engine, backend, assistant)
+
+--------------------------------------------------------------------------------
+1. DOCUMENT CONTROL & REVIEW
+--------------------------------------------------------------------------------
+
+1.1 Revision History
+    Version   Date         Author                Changes
+    ------    ---------    -------------------   -----------------------------
+    0.1       2026-08-15   Product Strategy      Initial draft
+    1.0       2026-08-15   Product Strategy      Baseline for stakeholder review
+
+1.2 Approvals
+    Role                          Name/Group          Status
+    ----------------------------  ------------------  ----------
+    Executive Sponsor             TBD                 Pending
+    VP Product                    TBD                 Pending
+    Engineering Lead              TBD                 Pending
+    ML/AI Lead                    TBD                 Pending
+    Legal & Compliance            TBD                 Pending
+    Marketing / GTM               TBD                 Pending
+
+1.3 Review Schedule
+    Weekly stakeholder checkpoint until BR-1..BR-9 are baselined;
+    re-baseline on any material change to scope, cost model, or target market.
+
+--------------------------------------------------------------------------------
+2. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+
+NaturaAI is an AI-powered platform that predicts and recommends herbal remedies
+for common ailments. It analyzes user-selected herbs and generates a verdict
+(SAFE / CAUTION / UNSAFE) backed by a deterministic ML ensemble, curated
+knowledge, and — optionally — a grounded large-language-model (LLM) assistant.
+
+This document defines the BUSINESS requirements: the rationale, market
+opportunity, stakeholders, business goals, measurable success criteria,
+financial model, constraints, risks, and the go-to-market approach. It is the
+business contract that the PRD (functional/technical requirements) must satisfy.
+
+Core positioning: a credible, transparent, data-driven digital health-and-wellness
+education product — NOT a diagnostic or medical-treatment tool. All content is
+educational and carries prominent medical disclaimers.
+
+Key business targets (v1.0):
+  - Launch with a validated, defensible knowledge base:
+    368 herbs, 39 curated combinations, 15 disease mappings.
+  - Live free-tier MVP on render/Vercel/Neon within a low-cost budget
+    (target < $50/month operating cost at launch).
+  - Establish a monetization path (freemium → subscription; later B2B)
+    without compromising the educational-first trust model.
+
+--------------------------------------------------------------------------------
+3. BUSINESS CONTEXT & BACKGROUND
+--------------------------------------------------------------------------------
+
+3.1 Market Problem
+    - Consumers increasingly seek natural/alternative remedies for everyday
+      ailments, but information sources are fragmented: forums, folklore,
+      blogs, and unverified social-media claims.
+    - Little to no structure exists for comparing herb effectiveness,
+      safety, toxicity, and drug-interaction risk in one place.
+    - Mainstream consumers are not equipped to weigh toxicity risk,
+      recommended dosage, and preparation method, leading to unsafe self-care.
+    - The market opportunity is disproportionately attractive because
+      complementary-and-alternative-medicine (CAM) is growing globally while
+      regulation remains light — creating demand for a trust anchor.
+
+3.2 Why Now
+    - Generative AI has lowered the cost of building a grounded assistant
+      that cites sources and explains verdicts.
+    - The project already possesses a validated ML artifact (ensemble model:
+      Random Forest / Gradient Boosting / XGBoost / LightGBM) trained on a
+      permissively licensed dataset (Amidha, CC-BY-4.0).
+    - Infrastructure (Next.js frontend, Spring Boot backend, FastAPI ML engine,
+      Postgres/Redis/RabbitMQ/Qdrant) is already built and deployed on
+      free/low-cost tiers.
+
+3.3 Constraints We Must Not Violate
+    - NaturaAI is an EDUCATION product. It must never diagnose or treat.
+    - All claims must trace to a source (curated data / citations).
+    - The assistant must be "retrieval-first": grounded in the local knowledge
+      base, not free-generation.
+    - Free-tier hosting imposes cost ceilings and availability expectations.
+
+--------------------------------------------------------------------------------
+4. MARKET OPPORTUNITY & TARGET SEGMENTS
+--------------------------------------------------------------------------------
+
+4.1 Market Sizing (indicative, directional)
+    - The global herbal medicine / CAM market is valued in the tens of billions
+      USD and is growing at high single-digit CAGR.
+    - Wellness apps are among the fastest-growing consumer app categories;
+      consumers are willing to pay for credible, personalized wellness insight.
+    - Within this, "herb & supplement insight" tools remain under-served by
+      trustworthy, AI-driven products.
+
+4.2 Target Segments (ordered by priority)
+    S1  Wellness-curious consumers (25-55) seeking safe, evidence-minded
+        guidance on common ailments (sleep, stress, digestion, immunity).
+    S2  Lifestyle-trackers / self-quantifiers who want reproducible,
+        data-backed wellness decisions.
+    S3  Informed self-carers already using supplements who need
+        interaction/duplication warnings (combinations, allergens).
+    S4  (Future / v2.0) B2B: wellness clinics, telehealth providers,
+        supplement e-commerce — white-label "check my stack" tools.
+
+4.3 Segment Priorities for v1.0
+    v1.0 targets S1 and S2 with S3 as a differentiator (safety features).
+    S4 is deferred to v2.0 and described only as an opportunity.
+
+--------------------------------------------------------------------------------
+5. VALUE PROPOSITION
+--------------------------------------------------------------------------------
+
+For wellness-curious consumers, NaturaAI is the credible, transparent way to
+understand herbal remedies, because it turns scattered folklore into
+reproducible, source-backed verdicts — unlike forums and blogs.
+
+    Differentiators
+    - Deterministic, explainable scoring (compatibility, safety, benefit, risk,
+      confidence) instead of opaque advice.
+    - Explicit safety signals: toxicity, preparation, dosage, frequency,
+      interaction warnings.
+    - Grounded assistant that cites the knowledge base before it answers.
+    - Privacy-forward: account optional for browsing; JWT + OAuth2 auth;
+      data stored in our Postgres/Redis/Qdrant stack.
+    - Educational-first trust model with prominent disclaimers.
+
+--------------------------------------------------------------------------------
+6. STAKEHOLDERS
+--------------------------------------------------------------------------------
+
+    ID    Stakeholder              Interest / Influence           Priority
+    ---   ----------------------   ----------------------------   ---------
+    ST1   End consumers (S1-S3)    Primary users; UX, trust,      High
+                                   accuracy, safety.
+    ST2   Executive Sponsor        Funding, strategy, milestones. High
+    ST3   VP Product (BRD owner)   Requirements, success metrics,  High
+                                   prioritization.
+    ST4   Engineering              Feasibility, cost, quality.    High
+    ST5   ML/AI Team               Model quality, data licenses,  High
+                                   hallucination risk.
+    ST6   Design/UX                Trust, clarity, accessibility. Medium
+    ST7   Legal & Compliance       Disclaimers, data protection,  High
+                                   medical-claim exposure.
+    ST8   Marketing / GTM          Positioning, growth, metrics.  Medium
+    ST9   Ops / SRE                Uptime, cost ceiling,          Medium
+                                   observability.
+    ST10  Regulators (indirect)    Advertising & health-claims     Medium
+                                   rules (future markets).
+
+--------------------------------------------------------------------------------
+7. BUSINESS GOALS & MEASURABLE KPIs
+--------------------------------------------------------------------------------
+
+7.1 Strategic Goals (G)
+    G1  Launch a trustworthy, educational herbal-insight product that users
+        return to.
+    G2  Establish a defensible data + AI moat (curated knowledge base, trained
+        ensemble, retrieval-first assistant).
+    G3  Prove a sustainable unit economics model before scaling spend.
+    G4  Lay a compliance-safe foundation (education-first) so future
+        monetization and B2B expansion do not create regulatory surprises.
+
+7.2 KPIs & Targets (v1.0 launch, first 90 days)
+    KPI                             Target (90d)
+    ----------------------------    ---------------------------
+    K1  Active users (weekly)       >= 500 WAU at 90d
+    K2  Analyses completed          >= 2,000 total
+    K3  Completion rate             >= 40% of started analyses
+    K4  Return rate                 >= 20% WAU/MAU ratio
+    K5  Assistant usage             >= 30% of active users try it
+    K6  Retention (d30)             >= 15%
+    K7  Safety-flag exposure        >= 90% of UNSAFE/CAUTION verdicts
+                                       display a clear warning (QA-gated)
+    K8  Uptime                      >= 99.5% (free-tier realistic)
+    K9  Monthly infra cost          < $50/month at launch scale
+    K10 NPS                          >= 30 (survey on d7)
+    K11 Zero critical PII breaches  = 0 (audit-gated)
+
+7.3 KPI Ownership & Cadence
+    Product owns K1-K7; Ops owns K8-K9; Legal/Trust owns K11.
+    Review cadence: weekly (ops cost), monthly (product KPIs), quarterly
+    (strategy, roadmap, monetization go/no-go).
+
+--------------------------------------------------------------------------------
+8. BUSINESS REQUIREMENTS (BR)
+--------------------------------------------------------------------------------
+
+Legend: M = Must (v1.0), S = Should (v1.x), W = Won't (v2.0 / out of scope).
+
+    BR-1  [M] Educational positioning
+          All user-facing output must be presented as educational information,
+          not medical advice, diagnosis, or treatment. A prominent disclaimer
+          must be visible on analysis results, assistant responses, and the
+          plant scan feature.
+
+    BR-2  [M] Credible knowledge base
+          Launch with >= 300 herbs, >= 35 curated combinations, and >= 12
+          disease mappings, all traceable to the Amidha (CC-BY-4.0) dataset
+          and clearly attributed. Any manually curated data must be versioned
+          and reviewed before publishing.
+
+    BR-3  [M] Explainable, deterministic verdicts
+          Every analysis must produce a verdict (SAFE / CAUTION / UNSAFE) with
+          the five scores (compatibility, safety, benefit, risk, confidence),
+          plus toxicity, preparation, dosage, and frequency guidance — so a
+          business user (non-technical) can explain the outcome.
+
+    BR-4  [M] Safety-first experience
+          UNSAFE / CAUTION results must surface a clear warning to the user and
+          recommend consulting a healthcare professional. The system must flag
+          allergen and duplicate-combination risks.
+
+    BR-5  [M] Grounded AI assistant
+          Assistant answers must be retrieval-first, grounded in the local
+          knowledge base, cite sources where available, and degrade gracefully
+          when the knowledge base lacks an answer (no fabricated content).
+
+    BR-6  [M] Low-cost sustainable operations
+          The v1.0 platform must run on free/low-cost tiers (Render, Vercel,
+          Neon, managed Redis/RabbitMQ/Qdrant) with a documented cost ceiling
+          and observability so spend is predictable and bounded.
+
+    BR-7  [M] Privacy & security baseline
+          Account-based features must use secure auth (JWT + OAuth2 with Google
+          sign-in), email verification and password reset, encryption of
+          secrets, and no PII logging. Compliance with applicable data
+          protection rules (e.g., GDPR principles) must be documented.
+
+    BR-8  [M] Instrumentation & measurement
+          The platform must measure the KPIs in section 7.2 (analytics events,
+          dashboards) so business value can be proven before scaling spend.
+
+    BR-9  [M] Quality gate for release
+          The build must pass CI on every change (backend Maven tests, frontend
+          Vitest + ESLint + build, ML pytest) before anything ships, to protect
+          the trust model.
+
+    BR-10 [S] Plant scan (v1.x, heuristic v1)
+          A basic plant-photo recognition result (v1 heuristic stub) that
+          explicitly frames output as an unverified suggestion with a clear
+          educational disclaimer. Not promoted as a diagnostic capability.
+
+    BR-11 [S] Personalization (v1.x)
+          Optional user profile with allergies/avoidances to personalize
+          recommendations, surfaced transparently as opt-in.
+
+    BR-12 [S] Monetization design (v1.x, not before trust metrics are met)
+          Freemium design (free analyses + gated premium features) only after
+          K1, K2, K4, and K11 targets are demonstrated. No paywall before
+          trust/retention proof points.
+
+    BR-13 [W] B2B / white-label (v2.0)
+          Deferred. Opportunity documented; no commitments in v1.0.
+
+    BR-14 [W] Regulatory-approved medical claims (v2.0+)
+          Deferred. v1.0 explicitly does not make medical claims.
+
+    BR-15 [M] Accessibility & inclusivity
+          The experience must meet WCAG AA-level accessibility on core journeys
+          (analysis, results, assistant) to serve diverse consumers and avoid
+          exclusion risk.
+
+    BR-16 [M] Content moderation / disclaimer enforcement
+          All generated or curated content must pass a disclaimer/red-flag
+          check before being served (QA + automated check in CI).
+
+--------------------------------------------------------------------------------
+9. CONSTRAINTS, ASSUMPTIONS & DEPENDENCIES
+--------------------------------------------------------------------------------
+
+9.1 Constraints
+    C1  Education-only positioning; no medical claims (BR-1, BR-14).
+    C2  Free/low-cost infrastructure budget at launch (BR-6).
+    C3  Dataset license (CC-BY-4.0) must be honored and attributed.
+    C4  Single-owner maintenance reality: changes must remain reviewable and
+        low-complexity to sustain.
+    C5  Privacy and security practices must not regress across releases.
+
+9.2 Assumptions
+    A1  Consumers accept "educational guidance" with clear disclaimers.
+    A2  Free tier (Render/Vercel/Neon) is sufficient for launch traffic;
+        scaling triggers the cost review in BR-6.
+    A3  Amidha dataset accuracy is adequate for educational use and clearly
+        attributed; no clinical validation required at v1.0.
+    A4  LLM provider optionality (OpenAI / Llama / Gemma / Mistral) keeps
+        assistant costs bounded; default is retrieval-first and can run
+        without an external LLM.
+    A5  Marketing is low-budget (content, SEO, community) at launch.
+
+9.3 Dependencies
+    D1  ML engine model artifact (predictor.joblib) and curated CSV datasets.
+    D2  Live backend on Render and database on Neon (already deployed).
+    D3  CI pipelines on GitHub Actions (already green on main).
+    D4  Frontend build chain (Next 16 / React 19 / Tailwind 4).
+
+--------------------------------------------------------------------------------
+10. FINANCIAL CONSIDERATIONS
+--------------------------------------------------------------------------------
+
+10.1 Launch Cost Model (monthly, indicative)
+    Item                    Hosting/Tier          Est. Cost
+    ---------------------   -------------------   ---------
+    Backend API             Render free/startup   $0 - $7
+    Frontend                Vercel hobby          $0
+    Database                Neon free tier        $0
+    Redis / RabbitMQ        Managed free tier     $0
+    Qdrant                  Managed free tier     $0
+    ML engine               Render free/startup   $0 - $7
+    Optional LLM usage      Pay-per-call, capped  $5 - $25 (variable)
+    Domain & misc           Registry/DNS          $10 - $15
+    TOTAL                                        ~$15 - $55/month
+
+10.2 Budget Control
+    - Cost ceiling K9 (< $50/month) monitored weekly (C2, BR-6).
+    - LLM spend is capped and gated behind the retrieval-first path (A4).
+    - Any tier upgrade requires documented traffic justification.
+
+10.3 Revenue Model (future, gated by BR-12)
+    Phase 1 (v1.x): freemium — free core analyses; premium = unlimited
+      personalized recommendations, history, export reports, early features.
+    Phase 2 (v2.0): B2B licensing / white-label for clinics and supplement
+      e-commerce (BR-13), subject to legal review (BR-14).
+    Phase 3: partner API / embed for wellness ecosystems.
+
+10.4 Payback & Scaling Rule
+    Monetization go/no-go at quarter 2 review: proceed only if
+    (K1 >= 500 WAU, K4 >= 20%, K6 >= 15%, K11 = 0) all hold.
+
+--------------------------------------------------------------------------------
+11. RISKS, IMPACT & MITIGATIONS
+--------------------------------------------------------------------------------
+
+    ID    Risk                                   Likelihood  Impact   Mitigation
+    ----  -----------------------------------    ---------   ------   ----------
+    R1    Misleading users / health-claim        Low         High     Education
+         exposure                                          positioning,
+                                                                     disclaimers,
+                                                                     BR-1/14/16.
+    R2    LLM hallucination / unsafe advice      Medium      High     Retrieval-
+                                                                     first design,
+                                                                     citations,
+                                                                     max_tokens
+                                                                     bound,
+                                                                     degrade path,
+                                                                     BR-5.
+    R3    Dataset quality / attribution gaps     Medium      Medium   Traceability,
+                                                                     versioned
+                                                                     curation,
+                                                                     CC-BY-4.0
+                                                                     attribution,
+                                                                     BR-2.
+    R4    Free-tier reliability / downtime       Medium      Medium   Uptime K8,
+                                                                     observability,
+                                                                     cost ceiling
+                                                                     BR-6.
+    R5    Cost overrun (LLM, tiers)              Medium      Medium   Cap + gating,
+                                                                     weekly cost
+                                                                     review K9.
+    R6    Privacy breach / PII mishandling       Low         High     JWT+OAuth2,
+                                                                     no-PII-log
+                                                                     rule, audit
+                                                                     K11.
+    R7    Low adoption / weak retention          Medium      Medium   KPI gating,
+                                                                     trust-first
+                                                                     UX, dashboards
+                                                                     BR-8.
+    R8    Single-owner bus factor                Medium      Medium   Keep repo
+                                                                     simple, CI
+                                                                     enforced,
+                                                                     docs current.
+    R9    Regulatory attention (advertising/     Low         High     Education-only,
+         claims)                                          legal review
+                                                                     before GTM.
+
+--------------------------------------------------------------------------------
+12. SUCCESS CRITERIA (Definition of Business Done)
+--------------------------------------------------------------------------------
+
+v1.0 launch is a business success when ALL of the following hold by day 90:
+    - K1 >= 500 WAU, K2 >= 2,000 analyses, K3 >= 40% completion,
+      K4 >= 20% return ratio, K5 >= 30% assistant try-rate.
+    - K6 >= 15% d30 retention, K7 >= 90% safety-flag coverage,
+      K8 >= 99.5% uptime, K9 < $50/month, K11 = 0.
+    - BR-1..BR-9 fully implemented and evidenced (QA + CI green).
+    - No medical-claim or data-privacy incident logged.
+
+--------------------------------------------------------------------------------
+13. GO-TO-MARKET & LAUNCH APPROACH (v1.0)
+--------------------------------------------------------------------------------
+
+13.1 Positioning
+    "NaturaAI: understand herbal remedies — clearly, safely, and with sources."
+    Education-first; never diagnostic.
+
+13.2 Channels (low budget)
+    - SEO: educational content targeting "herb for X," "safe herbal remedies,"
+      "herb interaction checker" queries.
+    - Community: wellness/self-care subreddits, forums, newsletters.
+    - Word of mouth: shareable analysis summary cards.
+    - Optional: open-source visibility (repo is public).
+
+13.3 Launch Sequence
+    T-2w   Pre-launch: content seed, analytics events verified, CI green.
+    T-0    Launch: free tier live; instrument all KPIs (BR-8).
+    T+1w   Trust audit: disclaimer coverage (K7), cost snapshot (K9).
+    T+30d  Metrics review #1; fix retention/quality gaps.
+    T+90d  Monetization go/no-go per section 10.4; roadmap for v1.x.
+
+--------------------------------------------------------------------------------
+14. ROADMAP (BUSINESS VIEW)
+--------------------------------------------------------------------------------
+
+    Phase      Window       Business Focus
+    -------    ---------    ----------------------------------------------
+    v1.0       Now - 2026   Trust + traction: launch education-first MVP,
+                            instrument KPIs, prove retention and cost bounds.
+    v1.5       2026-2027    Growth + premium: personalization (BR-11),
+                            plant scan polish (BR-10), freemium (BR-12),
+                            content/SEO engine, optional partnerships.
+    v2.0       2027-2028    Expansion: B2B / white-label (BR-13), API,
+                            possibly regulated/validated data with legal
+                            review (BR-14).
+
+--------------------------------------------------------------------------------
+15. APPENDICES
+--------------------------------------------------------------------------------
+
+A. Definitions
+    Verdict            SAFE / CAUTION / UNSAFE classification of a remedy
+                       (educational).
+    Five scores        Compatibility, Safety, Benefit, Risk, Confidence.
+    Retrieval-first    Assistant answers derived from the local knowledge base
+                       before any generation.
+    WAU/MAU            Weekly / monthly active users.
+    Freemium           Free core product; paid premium tier (BR-12 gated).
+
+B. Cross-Reference to PRD
+    Every BR maps to functional/technical requirements in NAT-PRD-001
+    (BR-2 -> data & knowledge requirements; BR-3 -> analysis feature;
+    BR-5 -> assistant; BR-7 -> auth/security; BR-8 -> analytics;
+    BR-9 -> CI/quality).
+
+C. References
+    - Amidha dataset (CC-BY-4.0): ml-engine/data/herbs_amidha.json,
+      ml-engine/data/plants.csv, combinations.csv, diseases.csv.
+    - Architecture: docs/architecture.md.
+    - Database schema: docs/database-schema.sql.
+    - ML engine: ml-engine/ (main.py, predictor.py, recommender.py,
+      assistant.py, llm_client.py, knowledge.py, plant_recognition.py).
+    - CI: .github/workflows/ci.yml.
+
+================================================================================
+                          END OF BUSINESS REQUIREMENTS DOCUMENT
+================================================================================
