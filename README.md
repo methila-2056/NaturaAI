@@ -57,7 +57,11 @@ Live deployment captured from the production frontend (Vercel).
 <details>
 <summary><b>Full-page preview</b></summary>
 
-![Home — full page](docs/screenshots/home-full.png)
+<a href="docs/screenshots/home-full.png">
+  <img src="docs/screenshots/home-full.png" alt="Home — full page preview" width="480" />
+</a>
+
+Click the preview to open the full-resolution image.
 
 </details>
 
