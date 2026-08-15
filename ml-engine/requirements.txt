@@ -3,7 +3,7 @@ uvicorn[standard]>=0.52.1
 pydantic>=2.8.0
 python-multipart>=0.0.9
 pandas>=3.0.5
-numpy>=1.26.0
+numpy>=2.5.2
 scikit-learn>=1.9.0
 # Pinned to the versions used to train models/predictor.joblib. XGBoost/LightGBM
 # pickles are not readable across major versions, so the trainer and the runtime
