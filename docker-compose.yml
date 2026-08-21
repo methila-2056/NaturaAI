@@ -83,6 +83,16 @@ services:
       DB_HOST: postgres
       REDIS_HOST: redis
       RABBIT_HOST: rabbitmq
+      # Defaults mirror application.yml so behavior is unchanged when .env is
+      # absent. Do not pass empty values for JWT_SECRET/GOOGLE_* — an env var
+      # set to "" overrides Spring's fallback and breaks JWT/OAuth startup.
+      JWT_SECRET: ${JWT_SECRET:-change-me-to-a-long-random-secret-of-at-least-32-bytes}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-replace-with-google-client-id}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-replace-with-google-client-secret}
+      ML_ENGINE_URL: ${ML_ENGINE_URL:-http://ml-engine:8000}
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USERNAME: ${SMTP_USERNAME:-}
