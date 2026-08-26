@@ -20,6 +20,9 @@
 | Backend  | https://naturaai-backend.onrender.com        | Live   |
 | Database | Neon PostgreSQL (scale-to-zero)              | Live   |
 
+> ⚡ Free-tier hosting — the backend's first request after inactivity may take ~30 s while
+> the Render instance wakes up. The frontend above is the best place to start.
+
 > **Disclaimer:** NaturaAI is an educational project. It does **not** replace
 > professional medical advice. Always consult a qualified healthcare professional
 > before consuming or applying any herbal remedy, especially if you have existing
