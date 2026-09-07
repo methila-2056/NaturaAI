@@ -10,7 +10,7 @@ scikit-learn>=1.9.0
 # must agree on these. Retrain after bumping: python -m train.train_predictor
 xgboost==3.4.0
 lightgbm==4.7.0
-joblib>=1.5.3
+joblib>=1.6.0
 requests>=2.34.2
 Pillow>=12.3.0
 pytest>=9.1.1
